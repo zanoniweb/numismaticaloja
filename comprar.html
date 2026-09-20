@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guia passo a passo de como solicitar catálogos, boletins e adquirir peças na Numismática Zanoni com segurança e agilidade.">
+    <meta name="keywords" content="Numismática Zanoni, como comprar moedas, catálogo numismático, moedas raras, cédulas, fichas do brasil">
+    <meta name="author" content="Juliano Zanoni">
+    <meta name="theme-color" content="#0d0f12">
+
+    <title>Como Comprar | Numismática Zanoni</title>
+
+    <!-- Preconnect & Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Palette & Theme Tokens */
+            --bg-color: #0d0f12;
+            --surface-color: #161a22;
+            --surface-card: #1c212c;
+            --surface-hover: #242b38;
+            --border-color: #30363d;
+            --border-highlight: rgba(212, 175, 55, 0.4);
+
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+
+            --gold-primary: #d4af37;
+            --gold-hover: #f3cf55;
+            --gold-glow: rgba(212, 175, 55, 0.18);
+            --gold-gradient: linear-gradient(135deg, #f3cf55 0%, #d4af37 50%, #aa820a 100%);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --container-width: 1040px;
+            --header-height: 76px;
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+            --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.15);
+            --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--gold-primary);
+            outline-offset: 3px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        .header {
+            background-color: rgba(22, 26, 34, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Estilo da Logo */
+        .brand-logo {
+            height: 48px;
+            width: auto;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--gold-primary);
+            padding: 2px;
+            background-color: var(--bg-color);
+            transition: var(--transition-smooth);
+            object-fit: contain;
+        }
+
+        .brand:hover .brand-logo {
+            box-shadow: 0 0 14px var(--gold-primary);
+            transform: scale(1.02);
+        }
+
+        /* Desktop Nav */
+        .nav-desktop {
+            display: none;
+        }
+
+        .nav-list {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            padding: 0.5rem 0.85rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--gold-primary);
+            background-color: var(--gold-glow);
+            font-weight: 600;
+        }
+
+        .nav-link.highlight {
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        .nav-link.highlight:hover {
+            background-color: var(--gold-primary);
+            color: #000;
+        }
+
+        /* Mobile Hamburger Toggle */
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            gap: 5px;
+            z-index: 1100;
+            transition: var(--transition-smooth);
+        }
+
+        .menu-toggle:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .menu-toggle span {
+            width: 22px;
+            height: 2px;
+            background-color: var(--text-primary);
+            border-radius: 2px;
+            transition: var(--transition-smooth);
+        }
+
+        .menu-toggle.open span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .menu-toggle.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.open span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Mobile Drawer Menu */
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 320px;
+            height: 100vh;
+            background-color: var(--surface-color);
+            border-left: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1050;
+        }
+
+        .mobile-drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-logo {
+            height: 42px;
+            width: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold-primary);
+        }
+
+        .mobile-drawer.open {
+            right: 0;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+            z-index: 1040;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+
+        .mobile-nav-link:active, .mobile-nav-link.active {
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+            background-color: var(--gold-glow);
+        }
+
+        main {
+            flex: 1;
+            padding: 2.5rem 0 4rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            background-color: var(--gold-glow);
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-radius: 50px;
+            margin-bottom: 0.85rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-title span {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .channel-card {
+            background: linear-gradient(135deg, rgba(28, 33, 44, 0.95) 0%, rgba(22, 26, 34, 0.95) 100%);
+            border: 1px solid var(--border-highlight);
+            border-radius: var(--radius-lg);
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            box-shadow: var(--shadow-gold);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gold-gradient);
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .channel-info h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .channel-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            padding: 0.85rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: center;
+            min-height: 48px;
+            width: 100%;
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #0b0d10;
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+            background: linear-gradient(135deg, #f3cf55 0%, #e0bc43 100%);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+            background-color: var(--gold-glow);
+        }
+
+        .copy-toast {
+            font-size: 0.8rem;
+            color: #3fb950;
+            text-align: center;
+            min-height: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 600;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+        }
+
+        .steps-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-left: 3px solid var(--gold-primary);
+            padding-left: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .step-card {
+            background-color: var(--surface-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .step-card:hover {
+            border-color: var(--gold-primary);
+            background-color: var(--surface-hover);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-badge {
+            background: var(--gold-glow);
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            font-size: 1.1rem;
+            font-weight: 800;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+
+        .step-body h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-body p {
+            font-size: 0.925rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        .step-body strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .alert-box {
+            background-color: rgba(212, 175, 55, 0.08);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .credits {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .credits strong {
+            color: var(--gold-primary);
+        }
+
+        @media (min-width: 640px) {
+            .cta-actions {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .btn {
+                width: auto;
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            .menu-toggle, .mobile-drawer, .drawer-overlay {
+                display: none !important;
+            }
+
+            .nav-desktop {
+                display: block;
+            }
+
+            .channel-grid {
+                grid-template-columns: 1fr auto;
+                gap: 2rem;
+            }
+
+            .cta-actions {
+                flex-direction: column;
+                width: 280px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-container">
+            <!-- Brand Logo Oficial da Numismática Zanoni -->
+            <a href="index.html" class="brand" aria-label="Numismática Zanoni - Página Inicial">
+                <img src="./img/logo.png" 
+                     alt="Logo Numismática Zanoni" 
+                     class="brand-logo"
+                     onerror="this.onerror=null; this.src='https://d1yei2z3i6k35z.cloudfront.net/6946809/65e45ac72773e_zanoni.1.png';">
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="nav-desktop" aria-label="Navegação Principal Desktop">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link">História da Loja</a></li>
+                    <li><a href="biblioteca.html" class="nav-link">Biblioteca</a></li>
+                    <li><a href="loja.html" class="nav-link highlight active" aria-current="page">loja</a></li>
+                </ul>
+            </nav>
+
+            <!-- Mobile Hamburger Button -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir Menu de Navegação" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Slide-out Drawer Overlay & Menu -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="mobile-drawer" id="mobileDrawer" aria-label="Menu Mobile">
+        <div class="mobile-drawer-header">
+            <img src="./img/logo.png" alt="Logo Numismática Zanoni" class="drawer-logo" onerror="this.onerror=null; this.src='https://d1yei2z3i6k35z.cloudfront.net/6946809/65e45ac72773e_zanoni.1.png';">
+        </div>
+        <nav>
+            <ul class="mobile-nav-list">
+                <li><a href="index.html" class="mobile-nav-link">História da Loja</a></li>
+                <li><a href="fichasbrasil.html" class="mobile-nav-link">Fichas do Brasil</a></li>
+                <li><a href="biblioteca.html" class="mobile-nav-link">Biblioteca Digital</a></li>
+                <li><a href="moedasavenda.html" class="mobile-nav-link">Moedas à Venda</a></li>
+                <li><a href="moedasanomalas.html" class="mobile-nav-link">Moedas Anômalas</a></li>
+                <li><a href="comprar.html" class="mobile-nav-link active" aria-current="page">Como Comprar</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="container">
+        <!-- Page Header -->
+        <header class="page-header">
+            <span class="badge">Atendimento Direto & Exclusivo</span>
+            <h1 class="page-title">Como Adquirir Nossas <span>Peças</span></h1>
+            <p class="page-subtitle">Guia simples e transparente para solicitar boletins de produtos, efetuar reservas e concluir sua compra com total segurança.</p>
+        </header>
+
+        <!-- Main Official Channel Box -->
+        <section class="channel-card" aria-labelledby="channel-heading">
+            <div class="channel-grid">
+                <div class="channel-info">
+                    <h2 id="channel-heading">
+                        <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+                        </svg>
+                        Canal Oficial de Vendas
+                    </h2>
+                    <p>
+                        Para garantir a autenticidade e o controle rigoroso dos exemplares em estoque, 
+                        todas as consultas, envio de listas e confirmações de pedidos ocorrem exclusivamente via e-mail formal.
+                    </p>
+                </div>
+
+                <div class="cta-actions">
+
+                    <!--
+                    <a href="mailto:julianozanoni2014@gmail.com?subject=Solicitação%20de%20Boletim%20de%20Produtos" class="btn btn-gold">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.8 14.5a.5.5 0 0 1-.928.01L6.471 9.471 1.22 6.702a.5.5 0 0 1 .01-.928L15.73.036a.5.5 0 0 1 .124.11z"/>
+                        </svg>
+                        Enviar E-mail Agora
+                    </a>
+                    -->
+
+                    <button class="btn btn-outline" id="copyEmailBtn" type="button" aria-label="Copiar endereço de e-mail">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                        Copiar E-mail Oficial
+                    </button>
+                    <div class="copy-toast" id="copyToast" aria-live="polite">E-mail copiado com sucesso!</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step-by-Step Purchase Cards -->
+        <section class="steps-section" aria-labelledby="steps-heading">
+            <h2 class="section-title" id="steps-heading">Passo a Passo da Compra</h2>
+
+            <div class="steps-grid">
+                <article class="step-card">
+                    <div class="step-badge" aria-label="Passo 1">01</div>
+                    <div class="step-body">
+                        <h3>Solicitação do Boletim</h3>
+                        <p>
+                           Procedimento Operacional para Geração do Catálogo de PeçasObjetivo: Permitir a consulta, exportação e impressão personalizada do acervo numismático e de fichas disponíveis na plataforma.   Navegação e Seleção de Categorias:Utilize o menu de navegação ou o filtro de categorias para alternar entre as seções do acervo: Moedas do Plano Real, Moedas Anômalas e Fichas Diversas. A interface atualizará dinamicamente a contagem de itens, o preço médio e o valor total do lote exibido.   Refinamento e Busca Avançada:No campo de busca, insira parâmetros específicos como ano de cunhagem (ex: 1995), tipo de anomalia (ex: cunho duplo), valor facial ou descrição da ficha. A lista de resultados é filtrada em tempo real.   Modos de Visualização:Alterne entre o modo Cards (visualização em blocos interativos) e o modo Tabela (listagem simplificada focada em especificações técnicas e de conservação) conforme sua preferência de leitura.   Exportação e Impressão do Catálogo:Para gerar o catálogo do acervo selecionado:Geração em PDF: Clique no botão "Salvar PDF" no painel superior. O sistema processará automaticamente os dados visíveis e fará o download de um documento estruturado contendo nome, categoria, estado de conservação e preço unitário.   Impressão Direta: Clique em "Imprimir" para acionar a formatação de impressão otimizada do navegador.
+                        </p>
+                    </div>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge" aria-label="Passo 2">02</div>
+                    <div class="step-body">
+                        <h3>Escolha & Envio do Pedido</h3>
+                        <p>
+                            Adição de Itens ao Carrinho:Navegue pelas peças listadas no acervo. Ajuste a quantidade desejada no campo numérico ao lado da peça e clique no botão "Adicionar". Os itens serão acumulados no seu carrinho de compras.   Revisão do Pedido:Acesse o carrinho de compras clicando no ícone do carrinho localizado no cabeçalho. Na gaveta lateral, confira a relação das peças, ajuste ou remova itens se necessário, e verifique o subtotal estimado.   Preenchimento dos Dados de Envio:Preencha o formulário de cadastro com suas informações de contato e endereço para entrega (Nome Completo, E-mail, WhatsApp, CEP, Cidade/UF e Endereço). Selecione a preferência de logística (Correios PAC, SEDEX ou Retirada em Mãos).   Transmissão e Cotação do Pedido:Escolha um dos canais oficiais para transmissão do pedido:   Via E-mail: Clique em "Finalizar Compra via E-mail" para enviar a solicitação diretamente à equipe da loja.   Via WhatsApp: Clique em "Finalizar Compra via WhatsApp" para abrir o aplicativo com a mensagem estruturada contendo a relação do seu pedido.   Nota: Por se tratar de um acervo com peças únicas e variação logística, o valor do frete e a confirmação de disponibilidade dos itens serão validados pela equipe de atendimento após o envio do pedido.   
+                        </p>
+                    </div>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge" aria-label="Passo 3">03</div>
+                    <div class="step-body">
+                        <h3>Pagamento Seguro</h3>
+                        <p>
+                            Aceitamos pagamento via <strong>PIX ou Depósito Bancário (Caixa Econômica Federal)</strong>. Os dados são fornecidos após confirmarmos a disponibilidade das peças.
+                        </p>
+                        <div class="alert-box">
+                            💡 <strong>Importante:</strong> Realize a transferência somente após nossa mensagem de confirmação do estoque.
+                        </div>
+                    </div>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge" aria-label="Passo 4">04</div>
+                    <div class="step-body">
+                        <h3>Envio & Rastreamento</h3>
+                        <p>
+                            Após a confirmação financeira, a encomenda é embalada com proteção numismática reforçada e despachada via <strong>SEDEX</strong> com código de rastreamento.
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p class="credits">
+                Desenvolvido por <strong>Juliano Zanoni</strong>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const OFFICIAL_EMAIL = 'julianozanoni2014@gmail.com';
+
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileDrawer = document.getElementById('mobileDrawer');
+            const drawerOverlay = document.getElementById('drawerOverlay');
+
+            function toggleMenu() {
+                const isOpen = mobileDrawer.classList.contains('open');
+                if (isOpen) {
+                    mobileDrawer.classList.remove('open');
+                    drawerOverlay.classList.remove('open');
+                    menuToggle.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                } else {
+                    mobileDrawer.classList.add('open');
+                    drawerOverlay.classList.add('open');
+                    menuToggle.classList.add('open');
+                    menuToggle.setAttribute('aria-expanded', 'true');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            drawerOverlay.addEventListener('click', toggleMenu);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && mobileDrawer.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+
+            const copyBtn = document.getElementById('copyEmailBtn');
+            const copyToast = document.getElementById('copyToast');
+
+            copyBtn.addEventListener('click', () => {
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(OFFICIAL_EMAIL);
+                    } else {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = OFFICIAL_EMAIL;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                    }
+
+                    copyToast.classList.add('show');
+                    copyBtn.style.borderColor = '#3fb950';
+
+                    setTimeout(() => {
+                        copyToast.classList.remove('show');
+                        copyBtn.style.borderColor = '';
+                    }, 2500);
+
+                } catch (err) {
+                    console.error('Falha ao copiar:', err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Numismática Zanoni - Comércio, história e acervo digital sobre moedas e filatelia.">
+    <title>ZANONI NUMISMÁTICA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+    --bg-color: #0d0f12;
+    --card-bg: #161a22;
+    --text-color: #e6edf3;
+    --text-muted: #8b949e;
+    --accent-gold: #d4af37;
+    --accent-gold-hover: #f3cf55;
+    --border-color: #30363d;
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+    --container-max: 1100px;
+}
+
+/* Reset Moderno */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+/* Structural Header */
+.header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    width: clamp(180px, 40vw, 260px);
+    height: auto;
+    border: 2px solid var(--accent-gold);
+    border-radius: 8px;
+}
+
+/* Navigation Links - Mobile First Grid */
+.nav-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    list-style: none;
+    width: 100%;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.6rem 0.8rem;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover, .nav-link:focus {
+    background-color: var(--accent-gold);
+    color: #000;
+}
+
+.nav-link.highlight {
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.nav-link.highlight:hover {
+    color: #000;
+}
+
+/* Content Area */
+main {
+    flex: 1;
+    padding: 2.5rem 1.25rem;
+}
+
+.page-title {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--accent-gold);
+}
+
+.content-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.content-card p {
+    color: var(--text-color);
+    font-size: 1rem;
+    text-align: left; /* Melhora leitura em telas mobile */
+}
+
+/* Footer & Extras */
+.footer {
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+    margin-top: auto;
+}
+
+.footer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.credits {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.dev-logo {
+    max-width: 100px;
+    height: auto;
+}
+
+.counter-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Tablet & Desktop Adjustments */
+@media (min-width: 768px) {
+    .header-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .nav-list {
+        display: flex;
+        flex-wrap: wrap;
+        width: auto;
+    }
+
+    .nav-link {
+        background-color: transparent;
+    }
+
+    .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+</style>
+
+
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="brand">
+                <img src="./img/logo.png" alt="Logo Numismática Zanoni" class="logo">
+            </a>
+            
+            <nav class="nav" aria-label="Navegação principal">
+                <ul class="nav-list">
+                    <li><a href="biblioteca.html" class="nav-link">Biblioteca Filatelia & Numismática</a></li>
+                    <li><a href="comprar.html" class="nav-link highlight">Como Comprar</a></li>
+                    <li><a href="loja.html" class="nav-link highlight">Loja</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="about-section">
+            <h1 class="page-title">Zanoni Numismática: A origem da loja</h1>
+            <div class="content-card">
+                <p>Essa loja virtual foi criada pelo numismata e filatelista <strong>Juliano Zanoni</strong> — técnico em segurança do trabalho, técnico em química industrial, bacharel em turismo/hotelaria, licenciado em história e bacharel em engenharia de software. Especialista em: gestão ambiental, gestão pública, cultura africana, educação multicultural e docência de história.</p>
+                <p>Atuando no ramo do colecionismo desde 1992 como filatelista e desde 1998 como numismata, o intuito da loja, além do comércio numismático, é incentivar a preservação histórica para as futuras gerações.</p>
+                <p>Disponibilizamos também uma <strong>Biblioteca Digital Gratuita</strong> com acervo exclusivo para leitores e pesquisadores interessados em filatelia e numismática.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <p class="credits">
+                Desenvolvido por Juliano
+                <img src="https://d1yei2z3i6k35z.cloudfront.net/6946809/65e45ac72773e_zanoni.1.png" alt="Logo do desenvolvedor" class="dev-logo">
+            </p>
+            <div class="counter-badge">
+                <span>Contador de Visitas</span>
+                <a title="Contador de Visitas do MegaContador" href="https://megacontador.com.br/" target="_blank" rel="noopener">
+                    <img src="https://megacontador.com.br/img-7spMElJ49pfVV0qa-26.gif" alt="Contador de visitas">
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

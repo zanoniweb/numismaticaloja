@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zanoni Numismática - Catálogo & Carrinho de Compras</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0B0D10',
+                        darkCard: '#141820',
+                        darkCardHover: '#1C2230',
+                        goldPrimary: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                        goldDark: '#AA820A',
+                        emeraldSuccess: '#10B981',
+                        emeraldHover: '#059669',
+                        crimsonAccent: '#DC2626',
+                        crimsonHover: '#B91C1C'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- jsPDF & AutoTable Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0D10;
+            color: #E2E8F0;
+        }
+
+        .glass-panel {
+            background: rgba(20, 24, 32, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF0B3 0%, #D4AF37 50%, #997A15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0D10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A3241;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        @media print {
+            header, nav, .no-print, footer, #cart-drawer, .btn-group { 
+                display: none !important; 
+            } 
+            body { 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+            }
+            .print-container {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #000000 !important;
+            }
+            th, td {
+                border: 1px solid #cccccc !important;
+                color: #000000 !important;
+                padding: 6px !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-goldPrimary selection:text-black">
+
+    <!-- Sticky Navigation Bar -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-goldPrimary/20 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-goldDark via-goldPrimary to-goldLight p-[2px] shadow-lg shadow-goldPrimary/20">
+                        <div class="w-full h-full bg-darkBg rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-coins text-goldPrimary text-xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tight gold-gradient-text block leading-none">
+                            ZANONI
+                        </a>
+                        <span class="text-[10px] tracking-widest text-slate-400 uppercase font-bold">Numismática & Fichas</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium">
+                    <a href="index.html" class="text-slate-300 hover:text-goldPrimary transition-colors">História</a>
+                    <a href="#fichas" onclick="switchCategory('FICHAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Fichas do Brasil</a>
+                    <a href="#anomalas" onclick="switchCategory('ANOMALAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Moedas Anômalas</a>
+                    <a href="#moedas" onclick="switchCategory('MOEDAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Moedas a Venda</a>
+                    <a href="biblioteca.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Biblioteca</a>
+                    <a href="comprar.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Como Comprar</a>
+
+                </nav>
+
+                <!-- Actions: Cart Toggle Button -->
+                <div class="flex items-center space-x-3">
+                    <button id="cart-toggle-btn" onclick="toggleCartDrawer()" class="relative inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/40 hover:bg-goldPrimary hover:text-black transition-all duration-300 shadow-sm">
+                        <i class="fa-solid fa-cart-shopping mr-2 text-base"></i> Carrinho
+                        <span id="cart-badge-count" class="ml-2 bg-crimsonAccent text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                    
+                    <button id="mobile-menu-btn" type="button" class="lg:hidden inline-flex items-center justify-center p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-darkCard focus:outline-none border border-slate-800">
+                        <i id="menu-icon" class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-800 bg-darkCard/95 px-4 pt-3 pb-6 space-y-2 shadow-2xl">
+            <a href="index.html" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">História da Loja</a>
+            <button onclick="switchCategory('MOEDAS')" class="w-full text-left block px-3 py-2.5 rounded-lg text-base font-medium text-goldPrimary bg-goldPrimary/10">Moedas a Venda</button>
+            <button onclick="switchCategory('FICHAS')" class="w-full text-left block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Fichas do Brasil</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow print-container">
+        
+        <!-- Hero Header Banner -->
+        <div class="relative rounded-2xl glass-panel p-6 sm:p-8 mb-8 overflow-hidden border border-goldPrimary/20">
+            <div class="absolute -right-12 -bottom-12 opacity-10 text-goldPrimary text-9xl pointer-events-none">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <div class="relative z-10 max-w-3xl">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/30 mb-3">
+                    <i class="fa-solid fa-circle-check mr-1.5 text-xs"></i> Acervo Oficial Numismático & Fichas
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+                    Catálogo de Moedas e Fichas do Brasil
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                    Selecione os itens desejados, ajuste as quantidades e envie seu pedido diretamente ao vendedor para cotação personalizada de frete.
+                </p>
+            </div>
+        </div>
+
+        <!-- Live Numismatic Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Total no Acervo</div>
+                <div id="stat-total-items" class="text-xl sm:text-2xl font-black text-white">0</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Exibidos Agora</div>
+                <div id="stat-visible-items" class="text-xl sm:text-2xl font-black text-goldPrimary">0</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Preço Médio</div>
+                <div id="stat-avg-price" class="text-xl sm:text-2xl font-black text-emerald-400">R$ 0,00</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Valor do Lote Exibido</div>
+                <div id="stat-total-value" class="text-xl sm:text-2xl font-black text-white">R$ 0,00</div>
+            </div>
+        </div>
+
+        <!-- Toolbar: Categorias, Busca e Opções -->
+        <div class="bg-darkCard rounded-xl p-4 mb-6 border border-slate-800/80 shadow-lg no-print">
+            <div class="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
+                
+                <!-- Buscador -->
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="search-input" 
+                        placeholder="Buscar por descrição, tipo de ficha, moeda, ano (ex: 'Fliperama', 'JK', '1995')..." 
+                        class="w-full pl-10 pr-10 py-2.5 bg-darkBg border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-goldPrimary transition-all">
+                    <button id="clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filtro de Categoria -->
+                <div class="flex items-center gap-2">
+                    <select id="category-filter" class="bg-darkBg border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-goldPrimary">
+                        <option value="ALL">Todas as Categorias</option>
+                        <option value="MOEDAS">Moedas do Plano Real</option>
+                         <option value="ANOMALAS">Moedas Anômalas</option>
+                        <option value="FICHAS">Fichas Diversas</option>
+                    </select>
+
+                    <!-- Modos de Exibição -->
+                    <div class="inline-flex rounded-lg bg-darkBg p-1 border border-slate-800">
+                        <button id="view-card-btn" class="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-grip"></i> Cards
+                        </button>
+                        <button id="view-table-btn" class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-list"></i> Tabela
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Exportações -->
+                <div class="flex items-center gap-2 justify-end">
+                    <button onclick="window.print()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition-all">
+                        <i class="fa-solid fa-print text-goldPrimary"></i> Imprimir
+                    </button>
+                    <button onclick="exportarPDF()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-crimsonAccent to-crimsonHover hover:opacity-90 text-white text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-crimsonAccent/20 transition-all">
+                        <i class="fa-solid fa-file-pdf"></i> Salvar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Display Container -->
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Renderizado via JavaScript -->
+        </div>
+
+        <!-- Table Display Container -->
+        <div id="table-wrapper" class="hidden overflow-hidden rounded-xl border border-slate-800 glass-panel shadow-2xl">
+            <div class="overflow-x-auto">
+                <table id="main-table" class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/90 text-xs font-bold text-goldPrimary uppercase border-b border-slate-800">
+                        <tr>
+                            <th scope="col" class="px-4 py-3.5">Item / Descrição</th>
+                            <th scope="col" class="px-4 py-3.5">Categoria / Tipo</th>
+                            <th scope="col" class="px-4 py-3.5 text-center">Conservação</th>
+                            <th scope="col" class="px-4 py-3.5 text-right">Preço (Unitário)</th>
+                            <th scope="col" class="px-4 py-3.5 text-center no-print">Quantidade & Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-800/60 bg-darkCard/50">
+                        <!-- Renderizado via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-xl border border-slate-800 my-6">
+            <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4 block"></i>
+            <h3 class="text-lg font-bold text-slate-200 mb-1">Nenhum item localizado</h3>
+            <p class="text-sm text-slate-400">Ajuste os filtros de busca para encontrar as peças no acervo.</p>
+        </div>
+    </main>
+
+    <!-- Side-Drawer Carrinho de Compras e Formulário -->
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[500px] bg-darkCard border-l border-goldPrimary/30 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+        <!-- Header Carrinho -->
+        <div class="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-cart-shopping text-goldPrimary text-xl"></i>
+                <h3 class="text-lg font-bold text-white">Meu Carrinho de Compras</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Lista de Itens do Carrinho -->
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+            <div id="cart-items-container" class="space-y-3">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+
+            <!-- Formulário de Finalização de Compra (FormSubmit) -->
+            <form id="checkout-form" class="contact-form space-y-4 pt-6 border-t border-slate-800" action="https://formsubmit.co/julianozanoni2014@gmail.com" method="POST" autocomplete="off">
+                <h4 class="text-sm font-extrabold text-goldPrimary uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear"></i> Dados do Comprador & Envio
+                </h4>
+
+                <div class="form-group">
+                    <label for="nome" class="block text-xs font-semibold text-slate-300 mb-1">Nome Completo: *</label>
+                    <input type="text" id="nome" name="nome" required class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="form-group">
+                        <label for="email" class="block text-xs font-semibold text-slate-300 mb-1">E-mail: *</label>
+                        <input type="email" id="email" name="email" required class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone" class="block text-xs font-semibold text-slate-300 mb-1">WhatsApp / Tel: *</label>
+                        <input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="form-group col-span-1">
+                        <label for="cep" class="block text-xs font-semibold text-slate-300 mb-1">CEP: *</label>
+                        <input type="text" id="cep" name="cep" required placeholder="00000-000" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="cidade_uf" class="block text-xs font-semibold text-slate-300 mb-1">Cidade / UF: *</label>
+                        <input type="text" id="cidade_uf" name="cidade_uf" required placeholder="Ex: Londrina - PR" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="endereco" class="block text-xs font-semibold text-slate-300 mb-1">Endereço Completo & Bairro: *</label>
+                    <input type="text" id="endereco" name="endereco" required placeholder="Rua, Número, Complemento, Bairro" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                </div>
+
+                <div class="form-group">
+                    <label for="opcao_envio" class="block text-xs font-semibold text-slate-300 mb-1">Opção de Envio Preferencial:</label>
+                    <select id="opcao_envio" name="opcao_envio" onchange="calculateCartTotals()" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                        <option value="PAC (Cotar valor com vendedor)">Correios - PAC (A calcular)</option>
+                        <option value="SEDEX (Cotar valor com vendedor)">Correios - SEDEX (A calcular)</option>
+                        <option value="Retirada em Mãos / A Combinar">Retirada em Mãos / A Combinar</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem" class="block text-xs font-semibold text-slate-300 mb-1">Observações / Instruções:</label>
+                    <textarea id="mensagem" name="mensagem" rows="3" placeholder="Insira detalhes adicionais do pedido ou do endereço..." class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none"></textarea>
+                </div>
+
+                <!-- Campos Ocultos FormSubmit -->
+                <input type="hidden" name="assunto" value="Novo Pedido de Compras - Zanoni Numismática">
+                <input type="hidden" id="carrinho_detalhes" name="carrinho_detalhes" value="">
+                <input type="hidden" name="_next" value="https://zanoniweb.github.io/instituicionalteste/thanks.html">
+                <input type="hidden" name="_subject" value="Novo Pedido Recebido via Carrinho!">
+
+                <!-- Botões de Envio de Pedido -->
+                <div class="pt-2 space-y-2">
+                    <button type="submit" class="w-full py-3 rounded-lg bg-goldPrimary hover:bg-goldLight text-black font-extrabold text-sm uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Finalizar Compra via E-mail
+                    </button>
+                    <button type="button" onclick="checkoutWhatsApp()" class="w-full py-3 rounded-lg bg-emeraldSuccess hover:bg-emeraldHover text-black font-extrabold text-sm uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Finalizar Compra via WhatsApp
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Carrinho: Resumo de Valores -->
+        <div class="p-4 sm:p-6 bg-slate-900 border-t border-slate-800 space-y-2">
+            <div class="flex justify-between text-xs text-slate-400">
+                <span>Subtotal dos Itens:</span>
+                <span id="cart-subtotal" class="font-bold text-white">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-400">
+                <span>Cálculo do Frete:</span>
+                <span id="cart-freight" class="font-bold text-goldPrimary">A calcular pelo vendedor</span>
+            </div>
+            <div class="flex justify-between text-base font-black text-white pt-2 border-t border-slate-800">
+                <span>Total Estimado:</span>
+                <span id="cart-total" class="text-emeraldSuccess">R$ 0,00</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Corporate Footer -->
+    <footer class="bg-darkCard border-t border-slate-800 mt-12 py-8 px-4 sm:px-6 lg:px-8 text-slate-400 text-sm no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center space-x-3">
+                <div>
+                    <p class="font-bold text-slate-200">Zanoni Numismática</p>
+                    <p class="text-xs text-slate-500">Desenvolvido por Juliano Zanoni</p>
+                </div>
+            </div>
+            <div class="text-center md:text-right text-xs text-slate-500">
+                <p>&copy; <span id="current-year"></span> Zanoni Numismática. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Alert Box -->
+    <div id="modal-alert" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-goldPrimary/40 rounded-xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/30 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-circle-info text-xl"></i>
+            </div>
+            <h3 id="modal-title" class="text-lg font-bold text-white mb-2">Notificação</h3>
+            <p id="modal-message" class="text-sm text-slate-300 mb-6"></p>
+            <button onclick="closeModal()" class="w-full py-2.5 rounded-lg bg-goldPrimary text-black font-extrabold text-sm hover:bg-goldLight transition-colors">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidade Geral e Carrinho de Compras -->
+    <script>
+        // Catálogo Completo Unificado (Fichas do Brasil + Moedas do Real)
+        const fullCatalog = [
+            // FICHAS DO BRASIL
+            { id: "F1", categoria: "FICHAS", nome: "Deus é Fiel", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F2", categoria: "FICHAS", nome: "Gabima 2", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F3", categoria: "FICHAS", nome: "Havai", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F4", categoria: "FICHAS", nome: "Havai 4", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F5", categoria: "FICHAS", nome: "Havai 5", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F6", categoria: "FICHAS", nome: "M", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F7", categoria: "FICHAS", nome: "Magic Games", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F8", categoria: "FICHAS", nome: "Seta", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F9", categoria: "FICHAS", nome: "SPS", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F10", categoria: "FICHAS", nome: "SPS 3", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F11", categoria: "FICHAS", nome: "SPS 12", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F12", categoria: "FICHAS", nome: "SPS 15", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F13", categoria: "FICHAS", nome: "Virtual Player", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F14", categoria: "FICHAS", nome: "Urso Happy Machine", detalhe: "Pelúcia", conservacao: "MBC", preco: "R$ 15,00", numericPreco: 15.00 },
+            { id: "F15", categoria: "FICHAS", nome: "Basfre", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F16", categoria: "FICHAS", nome: "Formosa", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F17", categoria: "FICHAS", nome: "Formosa (em itálico)", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F18", categoria: "FICHAS", nome: "J", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F19", categoria: "FICHAS", nome: "Jaym 0", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F20", categoria: "FICHAS", nome: "Octoupus", detalhe: "Sinuca", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F21", categoria: "FICHAS", nome: "CTN (ficha não padronizada)", detalhe: "Telefônica Primitiva - Rara", conservacao: "MBC", preco: "R$ 100,00", numericPreco: 100.00 },
+            { id: "F22", categoria: "FICHAS", nome: "CTB (ficha não padronizada)", detalhe: "Telefônica Primitiva - Rara", conservacao: "MBC", preco: "R$ 80,00", numericPreco: 80.00 },
+            { id: "F23", categoria: "FICHAS", nome: "CTB (padronizada, reverso vazio)", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F24", categoria: "FICHAS", nome: "CTBC (reverso 'FONTAMAC')", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F25", categoria: "FICHAS", nome: "TELESERGIPE (reverso ARTOL)", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F26", categoria: "FICHAS", nome: "DDD 1987 - CMB - TELEBRÁS", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "F27", categoria: "FICHAS", nome: "LOCAL 1986 - PLASTIPAR - TELEBRÁS", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "F28", categoria: "FICHAS", nome: "LOCAL 1991 - PLASTIPAR - TELEBRÁS", detalhe: "Telefônica", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+
+            // MOEDAS A VENDA BRASIL
+            { id: "M1", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "1994", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+            { id: "M2", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "1995", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+            { id: "M3", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "1996", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+            { id: "M4", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "1997", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+            { id: "M5", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "2000", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "M6", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "2001", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M7", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "2003", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M8", categoria: "MOEDAS", nome: "R$ 0,01", detalhe: "2004", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M9", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "1995", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "M10", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "1996", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "M11", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "1998", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M12", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "1999", conservacao: "MBC", preco: "R$ 70,00", numericPreco: 70.00 },
+            { id: "M13", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2000", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M14", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2001", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M15", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2002", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "M16", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2008", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M17", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2014", conservacao: "MBC", preco: "R$ 6,00", numericPreco: 6.00 },
+            { id: "M18", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2019", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M19", categoria: "MOEDAS", nome: "R$ 0,05", detalhe: "2019A", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M20", categoria: "MOEDAS", nome: "R$ 0,10", detalhe: "1998", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M21", categoria: "MOEDAS", nome: "R$ 0,10", detalhe: "1999", conservacao: "MBC", preco: "R$ 80,00", numericPreco: 80.00 },
+            { id: "M22", categoria: "MOEDAS", nome: "R$ 0,10", detalhe: "2000", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M23", categoria: "MOEDAS", nome: "R$ 0,10", detalhe: "2001", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M24", categoria: "MOEDAS", nome: "R$ 0,10", detalhe: "2002", conservacao: "MBC", preco: "R$ 6,00", numericPreco: 6.00 },
+            { id: "M25", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "1995", conservacao: "MBC", preco: "R$ 12,50", numericPreco: 12.50 },
+            { id: "M26", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "1998", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+            { id: "M27", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "1999", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "M28", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "2000", conservacao: "MBC", preco: "R$ 60,00", numericPreco: 60.00 },
+            { id: "M29", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "2014", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "M30", categoria: "MOEDAS", nome: "R$ 0,25", detalhe: "2016", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M31", categoria: "MOEDAS", nome: "R$ 0,50", detalhe: "1995", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "M32", categoria: "MOEDAS", nome: "R$ 0,50", detalhe: "1998", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "M33", categoria: "MOEDAS", nome: "R$ 0,50", detalhe: "2000", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "M34", categoria: "MOEDAS", nome: "R$ 0,50", detalhe: "2001", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "M35", categoria: "MOEDAS", nome: "R$ 0,50", detalhe: "2006", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M36", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "1998", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "M37", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2014", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "M38", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2016", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "M39", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2002 (JK)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M40", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2005 (BC)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M41", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2015 (BC)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M42", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2014 (NATAÇÃO)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M43", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2015 (PARACANOAGEM)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M44", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2015 (VOLEI)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M45", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2016 (BOXE)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+            { id: "M46", categoria: "MOEDAS", nome: "R$ 1,00", detalhe: "2019 (BEIJA FLOR)", conservacao: "MBC", preco: "R$ 5,00", numericPreco: 5.00 },
+        
+            // MOEDAS A VENDA BRASIL (ANÔMALAS)
+            { id: "A1", categoria: "ANOMALAS", nome: "R$ 0,01", detalhe: "1997 - Cunho duplo Brasil + Data no anverso", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "A2", categoria: "ANOMALAS", nome: "R$ 0,01", detalhe: "1999 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 120,00", numericPreco: 120.00 },
+            { id: "A3", categoria: "ANOMALAS", nome: "R$ 0,01", detalhe: "2000 - Cunho duplo Brasil, Mastro e Cabral", conservacao: "MBC", preco: "R$ 130,00", numericPreco: 130.00 },
+            { id: "A4", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1994 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A5", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1994 - Cunho Quebrado no Anverso", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A6", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1994 - Cunho Marcado (Data duplicada e bem visível)", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A7", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1995 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A8", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1995 - Cunho Marcado (Data duplicada e bem visível)", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A9", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1996 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A10", categoria: "ANOAMLAS", nome: "R$ 0,05", detalhe: "1996 - Cunho duplo Centravos & Valor Facial 5", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A11", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1996 - Cunho duplo (Sinal da data em triplicidade)", conservacao: "MBC", preco: "R$ 60,00", numericPreco: 60.00 },
+            { id: "A12", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1997 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A13", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1997 - Cunho Marcado (Data duplicada e bem visível)", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A14", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "1999 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 80,00", numericPreco: 80.00 },
+            { id: "A15", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2000 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 70,00", numericPreco: 70.00 },
+            { id: "A16", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2001 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A17", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2001 - Cunho duplo palavra Centavos", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A18", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2001 - Cunho duplo Tiradentes", conservacao: "MBC-", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A19", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2001 - Cunho duplo Tiradentes", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A20", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Com excesso de metal na letra A", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A21", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A22", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Reverso Inclinado à Direita", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A23", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Cunho duplo Brasil + Triângulo", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A24", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Cunho duplo Centavos e linhas inferiores", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A25", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2002 - Cunho duplo Data em duplicidade", conservacao: "MBC", preco: "R$ 35,00", numericPreco: 35.00 },
+            { id: "A26", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2003 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A27", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2004 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A28", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2004 - Cunho Marcado (Data duplicada + busto reverso)", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A29", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2004 - Cunho Marcado (Busto de Tiradentes no reverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A30", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2004 - Reverso Inclinado à Direita", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A31", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2004 - Cunho duplo Data em duplicidade", conservacao: "MBC", preco: "R$ 35,00", numericPreco: 35.00 },
+            { id: "A32", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2005 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A33", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2005 - Cunho Marcado (Busto de Tiradentes no reverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A34", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2005 - Cunho Marcado (Data no anverso e busto no reverso)", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A35", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2006 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A36", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2007 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A37", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2007 - Cunho Marcado (Data no anverso e busto no reverso)", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A38", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2007 - Cunho duplo Centavos letras O e S", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A39", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2008 - Com excesso de metal na letra A", conservacao: "MBC", preco: "R$ 70,00", numericPreco: 70.00 },
+            { id: "A40", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2009 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A41", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2010 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A42", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2010 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A43", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2010 - Cunho duplo Brasil, Triângulo e asas da pomba", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A44", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2011 - Cunho duplo Centavos e linhas diagonais", conservacao: "MBC", preco: "R$ 35,00", numericPreco: 35.00 },
+            { id: "A45", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2012 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A46", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A47", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A48", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Cunho Marcado (Linhas em relevo no anverso)", conservacao: "MBC", preco: "R$ 15,00", numericPreco: 15.00 },
+            { id: "A49", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Cunho duplo Brasil e Triângulo", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A50", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Cunho duplo Brasil, Triângulo e asa da pomba", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A51", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2013 - Cunho duplo Brasil, Triângulo e asas da pomba", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A52", categoria: "ANOMALAS", nome: "R$ 0,05", detalhe: "2015 - Cunho duplo Estrelas", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A53", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1994 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A54", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1994 - Cunho Marcado (Data duplicada no anverso)", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A55", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1994 - Cunho Marcado (Data triplicada no anverso)", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A56", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1995 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A57", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1995 - Cunho Marcado (Data duplicada no anverso)", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A58", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1996 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A59", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1996 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A60", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1996 - Cunho duplo Brasil + sinal da data no anverso", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A61", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1996 - Cunho Marcado (Data duplicada no anverso)", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A62", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1997 - Cunho Marcado (Sinal da data no anverso)", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+            { id: "A63", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1997 - Cunho duplo Brasil + sinal da data no anverso", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A64", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1997 - Cunho duplo Data", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A65", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1997 - Cunho Marcado (Data duplicada no anverso)", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A66", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "1998 - Reverso borrado com data parecida de 1995", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A67", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2000 - Cunho duplo Pedro I", conservacao: "MBC", preco: "R$ 35,00", numericPreco: 35.00 },
+            { id: "A68", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2001 - Cunho duplo Pedro I", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A69", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2002 - Cunho duplo Pedro I", conservacao: "SOB", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A70", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2003 - P. P. P.", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A71", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2008 - Cunho duplo Brasil + PEDRO I", conservacao: "MBC", preco: "R$ 50,00", numericPreco: 50.00 },
+            { id: "A72", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2011 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A73", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2011 - Cunho duplo Centavos", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A74", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2012 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A75", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2013 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 35,00", numericPreco: 35.00 },
+            { id: "A76", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2013 - Cunho duplo Centavos, Data e Linhas Inferiores", conservacao: "MBC", preco: "R$ 60,00", numericPreco: 60.00 },
+            { id: "A77", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2015 - Cunho duplo Data, Estrelas e Linhas Inferiores", conservacao: "MBC", preco: "R$ 60,00", numericPreco: 60.00 },
+            { id: "A78", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2018 - Cunho duplo Pedro I", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "M79_an", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2018 - Cunho duplo Pedro I", conservacao: "SOB", preco: "R$ 40,00", numericPreco: 40.00 },
+            { id: "A80", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2020 - Cunho duplo Pedro I", conservacao: "SOB", preco: "R$ 70,00", numericPreco: 70.00 },
+            { id: "A81", categoria: "ANOMALAS", nome: "R$ 0,10", detalhe: "2021 - Cunho duplo Pedro I", conservacao: "SOB", preco: "R$ 70,00", numericPreco: 70.00 },
+            { id: "A82", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "1994 - Cunho marcardo sinal da data no reverso", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00},
+            { id: "A83", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2001 - Cunho duplo Centavos, Data, Linhas e Valor Facial", conservacao: "MBC", preco: "R$ 75,00", numericPreco: 75.00 },
+            { id: "A84", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2001 - Cunho duplo Centavos, Data, Estrelas, Linhas e Valor", conservacao: "MBC", preco: "R$ 90,00", numericPreco: 90.00 },
+            { id: "A85", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2001 - Cunho duplo Deodoro", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A86", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2002 - Cunho duplo Deodoro", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A87", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2002 - Cunho duplo estrelas", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A88", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 - Cunho fraco anverso e reverso", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },
+            { id: "A89", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2011 - Cunho duplo Centavos (letras O e S)", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },     
+            { id: "A90", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 25,00", numericPreco: 25.00 },  
+            { id: "A91", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 45,00", numericPreco: 45.00 },     
+            { id: "A92", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 - Cunho duplo Centavos", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A93", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 - Cunho duplo Data", conservacao: "MBC", preco: "R$ 15,00", numericPreco: 15.00 },
+            { id: "A94", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2013 -  Cunho duplo Data e Estrelas", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A95", categoria: "ANOMALAS", nome: "R$ 0,25", detalhe: "2014 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 55,00", numericPreco: 55.00 },
+            { id: "A96", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "1994 - Cunho marcado sinal da data no anverso", conservacao: "MBC", preco: "R$ 15,00", numericPreco: 15.00 },
+            { id: "A97", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "1994 - Cunho marcado sinal da data no anverso em duplicidade", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A98", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "1994 - Falsificação de época", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 }, 
+            { id: "A99", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "1995 - Cunho marcado sinal da data no anverso", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A100", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "1995 - Cunho marcado sinal da data no anverso em duplicidade", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A101", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2002 - Cunho Duplo - palavra Rio Branco", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A102", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2005 - Cunho Duplo - palavra Rio Branco", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A103", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2008 - Cunho Quebrado - pequeno cunho quebrado no anverso da moeda", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 }, 
+            { id: "A104", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2011 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A105", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2011 - Cunho Duplo - palavra Centavos", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },    
+            { id: "A106", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2012 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A107", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2013 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A108", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2013 - Cunho Entupido - palavra Rio Branco apagada", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A109", categoria: "ANOMALAS", nome: "R$ 0,50", detalhe: "2016 - Borda com pequeno boné", conservacao: "MBC", preco: "R$ 30,00", numericPreco: 30.00 },
+            { id: "A110", categoria: "ANOMALAS", nome: "R$ 1,00", detalhe: "2011 - Cunho duplo Estrelas", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },      
+            { id: "A111", categoria: "ANOMALAS", nome: "R$ 1,00", detalhe: "2013 - Data e Linha Inferior do Reverso", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A112", categoria: "ANOMALAS", nome: "R$ 1,00", detalhe: "2013 - Cunho duplo Estrelas", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 },
+            { id: "A113", categoria: "ANOMALAS", nome: "R$ 1,00", detalhe: "2022 - Cunho duplo Brasil", conservacao: "MBC", preco: "R$ 20,00", numericPreco: 20.00 }
+            
+        ];
+
+        let cart = [];
+        let filteredCatalog = [...fullCatalog];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            // Mobile menu toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Card / Table View Swapper
+            const cardBtn = document.getElementById('view-card-btn');
+            const tableBtn = document.getElementById('view-table-btn');
+            const cardsContainer = document.getElementById('cards-container');
+            const tableWrapper = document.getElementById('table-wrapper');
+
+            cardBtn.addEventListener('click', () => {
+                cardsContainer.classList.remove('hidden');
+                tableWrapper.classList.add('hidden');
+                cardBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5";
+                tableBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5";
+            });
+
+            tableBtn.addEventListener('click', () => {
+                cardsContainer.classList.add('hidden');
+                tableWrapper.classList.remove('hidden');
+                tableBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5";
+                cardBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5";
+            });
+
+            // Filtros
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
+            const categoryFilter = document.getElementById('category-filter');
+
+            function applyFilters() {
+                const query = searchInput.value.toLowerCase().trim();
+                const selectedCat = categoryFilter.value;
+
+                filteredCatalog = fullCatalog.filter(item => {
+                    const matchesSearch = item.nome.toLowerCase().includes(query) ||
+                                          item.detalhe.toLowerCase().includes(query) ||
+                                          item.conservacao.toLowerCase().includes(query) ||
+                                          item.preco.toLowerCase().includes(query);
+
+                    const matchesCategory = (selectedCat === 'ALL') || (item.categoria === selectedCat);
+                    return matchesSearch && matchesCategory;
+                });
+
+                renderCatalog();
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                clearSearchBtn.classList.toggle('hidden', e.target.value.length === 0);
+                applyFilters();
+            });
+
+            categoryFilter.addEventListener('change', applyFilters);
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                applyFilters();
+            });
+
+            // Envio do Formulário do Carrinho
+            document.getElementById('checkout-form').addEventListener('submit', function(e) {
+                if (cart.length === 0) {
+                    e.preventDefault();
+                    showModal("Carrinho Vazio", "Adicione pelo menos um item ao carrinho antes de enviar seu pedido.");
+                    return;
+                }
+                
+                // Consolida os dados do carrinho no hidden input
+                const detalhes = cart.map(i => `${i.qty}x ${i.nome} (${i.detalhe}) - ${i.preco}`).join('\n');
+                const subtotal = document.getElementById('cart-subtotal').textContent;
+                const envio = document.getElementById('opcao_envio').value;
+                
+                document.getElementById('carrinho_detalhes').value = `--- ITENS DO PEDIDO ---\n${detalhes}\n\nSubtotal: ${subtotal}\nEnvio: ${envio}`;
+            });
+
+            renderCatalog();
+        });
+
+        function switchCategory(cat) {
+            document.getElementById('category-filter').value = cat;
+            document.getElementById('category-filter').dispatchEvent(new Event('change'));
+        }
+
+        // Renderização do Catálogo
+        function renderCatalog() {
+            const cardsContainer = document.getElementById('cards-container');
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+
+            const totalItems = fullCatalog.length;
+            const visibleItems = filteredCatalog.length;
+            const totalVal = filteredCatalog.reduce((acc, curr) => acc + curr.numericPreco, 0);
+            const avgVal = visibleItems > 0 ? (totalVal / visibleItems) : 0;
+
+            document.getElementById('stat-total-items').textContent = totalItems;
+            document.getElementById('stat-visible-items').textContent = visibleItems;
+            document.getElementById('stat-avg-price').textContent = `R$ ${avgVal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('stat-total-value').textContent = `R$ ${totalVal.toFixed(2).replace('.', ',')}`;
+
+            if (visibleItems === 0) {
+                cardsContainer.innerHTML = '';
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Cards Render
+            cardsContainer.innerHTML = filteredCatalog.map(item => `
+                <div class="bg-darkCard hover:bg-darkCardHover rounded-xl p-4 border border-slate-800 hover:border-goldPrimary/40 transition-all duration-300 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${item.categoria === 'MOEDAS' ? 'bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                                ${item.categoria}
+                            </span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-emeraldSuccess border border-slate-700">
+                                ${item.conservacao}
+                            </span>
+                        </div>
+                        <h4 class="text-base font-bold text-white mb-1">${item.nome}</h4>
+                        <p class="text-xs text-slate-400 mb-4">${item.detalhe}</p>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Valor Unit.</span>
+                            <span class="text-base font-black text-white">${item.preco}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-1">
+                            <input type="number" id="qty-card-${item.id}" value="1" min="1" max="99" class="w-12 py-1 text-center bg-darkBg border border-slate-700 rounded text-xs text-white focus:outline-none focus:border-goldPrimary">
+                            <button onclick="addToCart('${item.id}', 'qty-card-${item.id}')" class="p-2 rounded bg-goldPrimary/10 hover:bg-goldPrimary hover:text-black text-goldPrimary border border-goldPrimary/30 transition-all text-xs font-bold" title="Adicionar ao Carrinho">
+                                <i class="fa-solid fa-cart-plus text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Table Render
+            tableBody.innerHTML = filteredCatalog.map(item => `
+                <tr class="hover:bg-slate-800/40 transition-colors">
+                    <td class="px-4 py-3.5 font-bold text-white whitespace-nowrap">${item.nome}</td>
+                    <td class="px-4 py-3.5 text-xs text-slate-300">${item.detalhe} <span class="text-[10px] text-slate-500">(${item.categoria})</span></td>
+                    <td class="px-4 py-3.5 text-center">
+                        <span class="inline-block text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-emeraldSuccess border border-slate-700">
+                            ${item.conservacao}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-right font-black text-goldPrimary whitespace-nowrap">${item.preco}</td>
+                    <td class="px-4 py-3.5 text-center no-print whitespace-nowrap">
+                        <div class="inline-flex items-center justify-center gap-1">
+                            <input type="number" id="qty-tbl-${item.id}" value="1" min="1" max="99" class="w-12 py-1 text-center bg-darkBg border border-slate-700 rounded text-xs text-white focus:outline-none focus:border-goldPrimary">
+                            <button onclick="addToCart('${item.id}', 'qty-tbl-${item.id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-goldPrimary hover:text-black text-xs font-bold text-slate-200 transition-colors gap-1 flex items-center">
+                                <i class="fa-solid fa-cart-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Adicionar ao Carrinho
+        function addToCart(itemId, inputId) {
+            const item = fullCatalog.find(i => i.id === itemId);
+            const qtyInput = document.getElementById(inputId);
+            const quantity = parseInt(qtyInput.value) || 1;
+
+            if (!item) return;
+
+            const existingIndex = cart.findIndex(c => c.id === itemId);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += quantity;
+            } else {
+                cart.push({ ...item, qty: quantity });
+            }
+
+            updateCartUI();
+            showModal("Item Adicionado", `${quantity}x "${item.nome} (${item.detalhe}) " foi adicionado ao seu carrinho.`);
+        }
+
+        // Atualização da Drawer do Carrinho
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cart-items-container');
+            const cartBadge = document.getElementById('cart-badge-count');
+
+            const totalQty = cart.reduce((acc, curr) => acc + curr.qty, 0);
+            cartBadge.textContent = totalQty;
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-2"></i>
+                        <p class="text-xs">Seu carrinho está vazio.</p>
+                    </div>
+                `;
+            } else {
+                cartContainer.innerHTML = cart.map((item, index) => `
+                    <div class="bg-darkBg p-3 rounded-lg border border-slate-800 flex items-center justify-between gap-3">
+                        <div class="flex-1">
+                            <h5 class="text-xs font-bold text-white">${item.nome}</h5>
+                            <p class="text-[10px] text-slate-400">${item.detalhe} - ${item.preco}</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center border border-slate-700 rounded bg-slate-900">
+                                <button onclick="changeCartQty(${index}, -1)" class="px-2 py-0.5 text-xs text-slate-400 hover:text-white">-</button>
+                                <span class="px-2 text-xs font-bold text-goldPrimary">${item.qty}</span>
+                                <button onclick="changeCartQty(${index}, 1)" class="px-2 py-0.5 text-xs text-slate-400 hover:text-white">+</button>
+                            </div>
+                            <button onclick="removeFromCart(${index})" class="text-slate-500 hover:text-crimsonAccent p-1">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            calculateCartTotals();
+        }
+
+        function changeCartQty(index, change) {
+            if (cart[index]) {
+                cart[index].qty += change;
+                if (cart[index].qty <= 0) {
+                    cart.splice(index, 1);
+                }
+                updateCartUI();
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function calculateCartTotals() {
+            const subtotal = cart.reduce((acc, curr) => acc + (curr.numericPreco * curr.qty), 0);
+            document.getElementById('cart-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-total').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+            
+            drawer.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Finalização WhatsApp
+        function checkoutWhatsApp() {
+    // 1. INSIRA SEU NÚMERO AQUI (DDD + número com 9 dígitos, apenas números):
+    const numeroTelefone = "5543988635712"; 
+
+    // Lógica para capturar os dados dos formulários e do carrinho
+    const nome = document.getElementById('nome').value;
+    const endereco = document.getElementById('endereco').value;
+    const total = document.getElementById('cart-total').innerText;
+
+    if (!nome) {
+        alert("Por favor, preencha o seu nome antes de enviar.");
+        return;
+    }
+
+    // Monta a mensagem que você receberá
+    let mensagem = `*Novo Pedido - Zanoni Numismática*\n\n`;
+    mensagem += `*Cliente:* ${nome}\n`;
+    mensagem += `*Endereço:* ${endereco}\n`;
+    mensagem += `*Total Estimado:* ${total}\n\n`;
+    mensagem += `Aguardando confirmação e cotação do frete!`;
+
+    // Codifica o texto para formato de URL
+    const mensagemFormatada = encodeURIComponent(mensagem);
+
+    // Redireciona para o WhatsApp com o seu número preenchido
+    window.open(`https://wa.me/${numeroTelefone}?text=${mensagemFormatada}`, '_blank');
+}
+
+        // Exportar em PDF usando jsPDF
+        function exportarPDF() {
+            if (filteredCatalog.length === 0) {
+                showModal("Exportação de PDF", "Não existem itens visíveis para exportar.");
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                doc.setFillColor(11, 13, 16);
+                doc.rect(0, 0, 210, 32, 'F');
+
+                doc.setTextColor(212, 175, 55);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(16);
+                doc.text("ZANONI NUMISMÁTICA", 14, 15);
+
+                doc.setTextColor(226, 232, 240);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text("Catálogo Oficial de Moedas e Fichas do Brasil", 14, 22);
+
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Gerado em: ${formattedDate}`, 14, 27);
+                doc.text(`Registros: ${filteredCatalog.length}`, 160, 27);
+
+                const tableHead = [["Item / Nome", "Categoria / Detalhe", "Conservação", "Preço (Unitário)"]];
+                const tableData = filteredCatalog.map(item => [
+                    item.nome,
+                    `${item.detalhe} (${item.categoria})`,
+                    item.conservacao,
+                    item.preco
+                ]);
+
+                doc.autoTable({
+                    head: tableHead,
+                    body: tableData,
+                    startY: 38,
+                    theme: 'grid',
+                    styles: { font: "helvetica", fontSize: 9, cellPadding: 3 },
+                    headStyles: { fillColor: [20, 24, 32], textColor: [212, 175, 55], fontStyle: 'bold' },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', width: 45 },
+                        1: { width: 70 },
+                        2: { halign: 'center', width: 35 },
+                        3: { halign: 'right', fontStyle: 'bold', width: 35 }
+                    }
+                });
+
+                doc.save(`Catalogo_Zanoni_Numismatica_${now.toISOString().slice(0, 10)}.pdf`);
+            } catch (err) {
+                console.error(err);
+                showModal("Erro ao Gerar PDF", "Ocorreu uma falha ao gerar o arquivo PDF.");
+            }
+        }
+
+        // Modal Auxiliar
+        function showModal(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-alert').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-alert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
