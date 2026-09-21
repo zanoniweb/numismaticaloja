@@ -876,31 +876,73 @@
         }
 
         // Finalização WhatsApp
-        function checkoutWhatsApp() {
-    // 1. INSIRA SEU NÚMERO AQUI (DDD + número com 9 dígitos, apenas números):
+function checkoutWhatsApp() {
+    // NÚMERO DO VENDEDOR (DDD + número):
     const numeroTelefone = "5543988635712"; 
 
-    // Lógica para capturar os dados dos formulários e do carrinho
-    const nome = document.getElementById('nome').value;
-    const endereco = document.getElementById('endereco').value;
-    const total = document.getElementById('cart-total').innerText;
+    // 1. Captação dos Dados do Comprador
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const cep = document.getElementById('cep').value.trim();
+    const cidadeUf = document.getElementById('cidade_uf').value.trim();
+    const endereco = document.getElementById('endereco').value.trim();
+    const opcaoEnvio = document.getElementById('opcao_envio').value;
+    const observacao = document.getElementById('mensagem').value.trim();
 
-    if (!nome) {
-        alert("Por favor, preencha o seu nome antes de enviar.");
+    // Validação de campos obrigatórios
+    if (!nome || !email || !telefone || !cep || !cidadeUf || !endereco) {
+        showModal("Dados Incompletos", "Por favor, preencha todos os dados do comprador (Nome, E-mail, Telefone, CEP, Cidade/UF e Endereço) antes de enviar por WhatsApp.");
         return;
     }
 
-    // Monta a mensagem que você receberá
-    let mensagem = `*Novo Pedido - Zanoni Numismática*\n\n`;
-    mensagem += `*Cliente:* ${nome}\n`;
-    mensagem += `*Endereço:* ${endereco}\n`;
-    mensagem += `*Total Estimado:* ${total}\n\n`;
-    mensagem += `Aguardando confirmação e cotação do frete!`;
+    if (cart.length === 0) {
+        showModal("Carrinho Vazio", "Adicione pelo menos um item ao carrinho para finalizar o pedido.");
+        return;
+    }
 
-    // Codifica o texto para formato de URL
+    // 2. Cálculo dos Valores da Compra
+    const subtotalNum = cart.reduce((acc, curr) => acc + (curr.numericPreco * curr.qty), 0);
+    const totalItens = cart.reduce((acc, curr) => acc + curr.qty, 0);
+
+    const subtotalFormatted = `R$ ${subtotalNum.toFixed(2).replace('.', ',')}`;
+    const totalFormatted = subtotalFormatted; // O valor final é igual ao subtotal até o vendedor cotar o frete
+
+    // 3. Montagem do Detalhamento dos Itens
+    let itensLista = "";
+    cart.forEach(item => {
+        const itemTotal = (item.numericPreco * item.qty).toFixed(2).replace('.', ',');
+        itensLista += `• *${item.qty}x* ${item.nome} (${item.detalhe}) - ${item.preco} un. = *R$ ${itemTotal}*\n`;
+    });
+
+    // 4. Montagem do Texto da Mensagem Formatada
+    let mensagem = `*NOVO PEDIDO DE COMPRA - ZANONI NUMISMÁTICA*\n\n`;
+    
+    mensagem += `*DADOS DO COMPRADOR:*\n`;
+    mensagem += `👤 *Nome Completo:* ${nome}\n`;
+    mensagem += `📧 *E-mail:* ${email}\n`;
+    mensagem += `📞 *Telefone:* ${telefone}\n`;
+    mensagem += `📮 *CEP:* ${cep}\n`;
+    mensagem += `🏙️ *Cidade/UF:* ${cidadeUf}\n`;
+    mensagem += `🏠 *Endereço:* ${endereco}\n`;
+    mensagem += `🚚 *Forma de Envio:* ${opcaoEnvio}\n`;
+    if (observacao) {
+        mensagem += `📝 *Observações:* ${observacao}\n`;
+    }
+
+    mensagem += `\n--------------------------------\n\n`;
+    
+    mensagem += `*ITENS DO PEDIDO:*\n`;
+    mensagem += itensLista;
+    
+    mensagem += `\n--------------------------------\n`;
+    mensagem += `📦 *Total de Itens:* ${totalItens}\n`;
+    mensagem += `💰 *Subtotal:* ${subtotalFormatted}\n`;
+    mensagem += `💳 *Valor Total (sem frete):* ${totalFormatted}\n\n`;
+    mensagem += `_Aguardando cotação final do frete com o vendedor!_`;
+
+    // 5. Redirecionamento para o WhatsApp
     const mensagemFormatada = encodeURIComponent(mensagem);
-
-    // Redireciona para o WhatsApp com o seu número preenchido
     window.open(`https://wa.me/${numeroTelefone}?text=${mensagemFormatada}`, '_blank');
 }
 
