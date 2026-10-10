@@ -128,7 +128,8 @@
                     <a href="index.html" class="text-slate-300 hover:text-goldPrimary transition-colors">História</a>
                     <a href="#fichas" onclick="switchCategory('FICHAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Fichas do Brasil</a>
                     <a href="#anomalas" onclick="switchCategory('ANOMALAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Moedas Anômalas</a>
-                    <a href="#moedas" onclick="switchCategory('MOEDAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Moedas a Venda</a>
+                    <a href="#moedas" onclick="switchCategory('MOEDAS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Plano Real</a>
+                     <a href="#planos" onclick="switchCategory('PLANOS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Outros Planos Monetários</a>
                     <a href="biblioteca.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Biblioteca</a>
                     <a href="comprar.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Como Comprar</a>
 
@@ -218,6 +219,7 @@
                 <div class="flex items-center gap-2">
                     <select id="category-filter" class="bg-darkBg border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-goldPrimary">
                         <option value="ALL">Todas as Categorias</option>
+                        <option value="PLANOS">Outros Planos Monetários</option>
                         <option value="MOEDAS">Moedas do Plano Real</option>
                          <option value="ANOMALAS">Moedas Anômalas</option>
                         <option value="FICHAS">Fichas Diversas</option>
@@ -420,6 +422,65 @@
     <script>
         // Catálogo Completo Unificado (Fichas do Brasil + Moedas do Real)
         const fullCatalog = [
+
+            // PLANOS MONETÁRIOS ANERIORES DO BRASIL
+
+             { id: "P342", categoria: "PLANOS", nome: "1,00", detalhe: "1979", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P343", categoria: "PLANOS", nome: "1,00", detalhe: "1980", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P344", categoria: "PLANOS", nome: "1,00", detalhe: "1981", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P345", categoria: "PLANOS", nome: "1,00", detalhe: "1982", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P349", categoria: "PLANOS", nome: "5,00", detalhe: "1980", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P353", categoria: "PLANOS", nome: "5,00", detalhe: "1984", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P355", categoria: "PLANOS", nome: "10,00", detalhe: "1980", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P356", categoria: "PLANOS", nome: "10,00", detalhe: "1981", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P357", categoria: "PLANOS", nome: "10,00", detalhe: "1982", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P358", categoria: "PLANOS", nome: "10,00", detalhe: "1983", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P359", categoria: "PLANOS", nome: "10,00", detalhe: "1984", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P360", categoria: "PLANOS", nome: "10,00", detalhe: "1985", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P362", categoria: "PLANOS", nome: "20,00", detalhe: "1981", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P364", categoria: "PLANOS", nome: "20,00", detalhe: "1984", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P366", categoria: "PLANOS", nome: "20,00", detalhe: "1985", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P369", categoria: "PLANOS", nome: "50,00", detalhe: "1982", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P370", categoria: "PLANOS", nome: "50,00", detalhe: "1983", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P371", categoria: "PLANOS", nome: "50,00", detalhe: "1984", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P372", categoria: "PLANOS", nome: "50,00", detalhe: "1985", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P374", categoria: "PLANOS", nome: "100,00", detalhe: "1985", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P375", categoria: "PLANOS", nome: "100,00", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P376", categoria: "PLANOS", nome: "200,00", detalhe: "1985", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P377", categoria: "PLANOS", nome: "200,00", detalhe: "1986", conservacao: "MBC", preco: "R$ 9,00", numericPreco: 9.00 },
+
+             { id: "P380", categoria: "PLANOS", nome: "0,01", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+
+             { id: "P383", categoria: "PLANOS", nome: "0,05", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+
+             { id: "P386", categoria: "PLANOS", nome: "0,10", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+
+             { id: "P389", categoria: "PLANOS", nome: "0,20", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+             { id: "P390", categoria: "PLANOS", nome: "0,20", detalhe: "1987", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+
+             { id: "P392", categoria: "PLANOS", nome: "0,50", detalhe: "1986", conservacao: "MBC", preco: "R$ 3,50", numericPreco: 3.50 },
+
+             { id: "P393", categoria: "PLANOS", nome: "1,00", detalhe: "1987", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+             { id: "P394", categoria: "PLANOS", nome: "1,00", detalhe: "1988", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P401", categoria: "PLANOS", nome: "10,00", detalhe: "1987", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+             { id: "P402", categoria: "PLANOS", nome: "10,00", detalhe: "1988", conservacao: "MBC", preco: "R$ 3,00", numericPreco: 3.00 },
+
+             { id: "P414", categoria: "PLANOS", nome: "5,00", detalhe: "1990", conservacao: "MBC", preco: "R$ 7,50", numericPreco: 7.50 },
+
+             { id: "P422", categoria: "PLANOS", nome: "50,00", detalhe: "1992", conservacao: "MBC", preco: "R$ 7,50", numericPreco: 7.50 },
+
+             { id: "P427", categoria: "PLANOS", nome: "1000,00", detalhe: "1992", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+             { id: "P428", categoria: "PLANOS", nome: "1000,00", detalhe: "1993", conservacao: "MBC", preco: "R$ 7,00", numericPreco: 7.00 },
+
+             { id: "P430", categoria: "PLANOS", nome: "5,00", detalhe: "1993", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
+          
             // FICHAS DO BRASIL
             { id: "F1", categoria: "FICHAS", nome: "Deus é Fiel", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
             { id: "F2", categoria: "FICHAS", nome: "Gabima 2", detalhe: "Fliperama", conservacao: "MBC", preco: "R$ 10,00", numericPreco: 10.00 },
