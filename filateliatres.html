@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zanoni Filatelia - Catálogo & Carrinho de Compras</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0B0D10',
+                        darkCard: '#141820',
+                        darkCardHover: '#1C2230',
+                        goldPrimary: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                        goldDark: '#AA820A',
+                        emeraldSuccess: '#10B981',
+                        emeraldHover: '#059669',
+                        crimsonAccent: '#DC2626',
+                        crimsonHover: '#B91C1C'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- jsPDF & AutoTable Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0D10;
+            color: #E2E8F0;
+        }
+
+        .glass-panel {
+            background: rgba(20, 24, 32, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF0B3 0%, #D4AF37 50%, #997A15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0D10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A3241;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        @media print {
+            header, nav, .no-print, footer, #cart-drawer, .btn-group { 
+                display: none !important; 
+            } 
+            body { 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+            }
+            .print-container {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #000000 !important;
+            }
+            th, td {
+                border: 1px solid #cccccc !important;
+                color: #000000 !important;
+                padding: 6px !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-goldPrimary selection:text-black">
+
+    <!-- Sticky Navigation Bar -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-goldPrimary/20 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-goldDark via-goldPrimary to-goldLight p-[2px] shadow-lg shadow-goldPrimary/20">
+                        <div class="w-full h-full bg-darkBg rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-stamp text-goldPrimary text-xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="index.html" class="text-xl sm:text-2xl font-black tracking-tight gold-gradient-text block leading-none">
+                            ZANONI
+                        </a>
+                        <span class="text-[10px] tracking-widest text-slate-400 uppercase font-bold">Filatelia & Lotes Clássicos</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium">
+                    <a href="#" onclick="switchCategory('ALL')" class="text-slate-300 hover:text-goldPrimary transition-colors">Todo o Acervo</a>
+                    <a href="#" onclick="switchCategory('IMPERIO')" class="text-slate-300 hover:text-goldPrimary transition-colors">Brasil Império & Inteiros</a>
+                    <a href="#" onclick="switchCategory('COMEMORATIVOS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Comemorativos</a>
+                    <a href="#" onclick="switchCategory('LOTES_ESPECIAIS')" class="text-slate-300 hover:text-goldPrimary transition-colors">Lotes Especiais & Estampilhas</a>
+                    <a href="biblioteca.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Biblioteca Filatelia & Numismática</a>
+                    <a href="comprar.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Como Comprar</a>
+                    <a href="loja.html" class="text-slate-300 hover:text-goldPrimary transition-colors">Loja Numismática</a>
+                </nav>
+
+                <!-- Actions: Cart Toggle Button -->
+                <div class="flex items-center space-x-3">
+                    <button id="cart-toggle-btn" onclick="toggleCartDrawer()" class="relative inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/40 hover:bg-goldPrimary hover:text-black transition-all duration-300 shadow-sm">
+                        <i class="fa-solid fa-cart-shopping mr-2 text-base"></i> Carrinho
+                        <span id="cart-badge-count" class="ml-2 bg-crimsonAccent text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow print-container">
+        
+        <!-- Hero Header Banner -->
+        <div class="relative rounded-2xl glass-panel p-6 sm:p-8 mb-8 overflow-hidden border border-goldPrimary/20">
+            <div class="absolute -right-12 -bottom-12 opacity-10 text-goldPrimary text-9xl pointer-events-none">
+                <i class="fa-solid fa-stamp"></i>
+            </div>
+            <div class="relative z-10 max-w-3xl">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/30 mb-3">
+                    <i class="fa-solid fa-circle-check mr-1.5 text-xs"></i> Avaliação Contemporânea (12/11/2026)
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+                    Loja Filatélica — Lote Avaliado à Venda
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                    Explore os itens clássicos de Império, inteiros postais e lotes comemorativos. Selecione a quantidade e finalize sua solicitação de compra diretamente pelo carrinho.
+                </p>
+            </div>
+        </div>
+
+        <!-- Live Numismatic Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 no-print">
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Itens no Acervo</div>
+                <div id="stat-total-items" class="text-xl sm:text-2xl font-black text-white">0</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Exibidos Agora</div>
+                <div id="stat-visible-items" class="text-xl sm:text-2xl font-black text-goldPrimary">0</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Preço Médio do Item</div>
+                <div id="stat-avg-price" class="text-xl sm:text-2xl font-black text-emerald-400">R$ 0,00</div>
+            </div>
+            <div class="bg-darkCard rounded-xl p-4 border border-slate-800/80 shadow-md">
+                <div class="text-xs font-medium text-slate-400 mb-1">Valor Total Exibido</div>
+                <div id="stat-total-value" class="text-xl sm:text-2xl font-black text-white">R$ 0,00</div>
+            </div>
+        </div>
+
+        <!-- Toolbar: Categorias, Busca e Opções -->
+        <div class="bg-darkCard rounded-xl p-4 mb-6 border border-slate-800/80 shadow-lg no-print">
+            <div class="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
+                
+                <!-- Buscador -->
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="search-input" 
+                        placeholder="Buscar por ano, descrição, olfato de boi, bilhete postal, comemorativo..." 
+                        class="w-full pl-10 pr-10 py-2.5 bg-darkBg border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-goldPrimary transition-all">
+                    <button id="clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filtro de Categoria -->
+                <div class="flex items-center gap-2">
+                    <select id="category-filter" class="bg-darkBg border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-goldPrimary">
+                        <option value="ALL">Todas as Categorias</option>
+                        <option value="IMPERIO">Brasil Império & Inteiros Postais</option>
+                        <option value="COMEMORATIVOS">Selos Comemorativos</option>
+                        <option value="LOTES_ESPECIAIS">Lotes Especiais & Estampilhas</option>
+                    </select>
+
+                    <!-- Modos de Exibição -->
+                    <div class="inline-flex rounded-lg bg-darkBg p-1 border border-slate-800">
+                        <button id="view-card-btn" class="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-grip"></i> Cards
+                        </button>
+                        <button id="view-table-btn" class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-list"></i> Tabela
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Exportações -->
+                <div class="flex items-center gap-2 justify-end">
+                    <button onclick="window.print()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition-all">
+                        <i class="fa-solid fa-print text-goldPrimary"></i> Imprimir
+                    </button>
+                    <button onclick="exportarPDF()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-crimsonAccent to-crimsonHover hover:opacity-90 text-white text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-crimsonAccent/20 transition-all">
+                        <i class="fa-solid fa-file-pdf"></i> Salvar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Display Container -->
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Renderizado via JavaScript -->
+        </div>
+
+        <!-- Table Display Container -->
+        <div id="table-wrapper" class="hidden overflow-hidden rounded-xl border border-slate-800 glass-panel shadow-2xl">
+            <div class="overflow-x-auto">
+                <table id="main-table" class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/90 text-xs font-bold text-goldPrimary uppercase border-b border-slate-800">
+                        <tr>
+                            <th scope="col" class="px-4 py-3.5">Referência / Ano</th>
+                            <th scope="col" class="px-4 py-3.5">Descrição / Observações</th>
+                            <th scope="col" class="px-4 py-3.5 text-center">Conservação</th>
+                            <th scope="col" class="px-4 py-3.5 text-right">Preço Total Venda</th>
+                            <th scope="col" class="px-4 py-3.5 text-center no-print">Quantidade & Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-800/60 bg-darkCard/50">
+                        <!-- Renderizado via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="empty-state" class="hidden text-center py-16 glass-panel rounded-xl border border-slate-800 my-6">
+            <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4 block"></i>
+            <h3 class="text-lg font-bold text-slate-200 mb-1">Nenhum item localizado</h3>
+            <p class="text-sm text-slate-400">Ajuste os filtros de busca para encontrar as peças no acervo.</p>
+        </div>
+    </main>
+
+    <!-- Side-Drawer Carrinho de Compras e Formulário -->
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[500px] bg-darkCard border-l border-goldPrimary/30 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+        <!-- Header Carrinho -->
+        <div class="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-cart-shopping text-goldPrimary text-xl"></i>
+                <h3 class="text-lg font-bold text-white">Meu Carrinho Filatélico</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Lista de Itens do Carrinho -->
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+            <div id="cart-items-container" class="space-y-3">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+
+            <!-- Formulário de Finalização de Compra -->
+            <form id="checkout-form" class="contact-form space-y-4 pt-6 border-t border-slate-800" action="https://formsubmit.co/julianozanoni2014@gmail.com" method="POST" autocomplete="off">
+                <h4 class="text-sm font-extrabold text-goldPrimary uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear"></i> Dados do Comprador & Envio
+                </h4>
+
+                <div class="form-group">
+                    <label for="nome" class="block text-xs font-semibold text-slate-300 mb-1">Nome Completo: *</label>
+                    <input type="text" id="nome" name="nome" required class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="form-group">
+                        <label for="email" class="block text-xs font-semibold text-slate-300 mb-1">E-mail: *</label>
+                        <input type="email" id="email" name="email" required class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone" class="block text-xs font-semibold text-slate-300 mb-1">WhatsApp / Tel: *</label>
+                        <input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="form-group col-span-1">
+                        <label for="cep" class="block text-xs font-semibold text-slate-300 mb-1">CEP: *</label>
+                        <input type="text" id="cep" name="cep" required placeholder="00000-000" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="cidade_uf" class="block text-xs font-semibold text-slate-300 mb-1">Cidade / UF: *</label>
+                        <input type="text" id="cidade_uf" name="cidade_uf" required placeholder="Ex: Londrina - PR" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="endereco" class="block text-xs font-semibold text-slate-300 mb-1">Endereço Completo & Bairro: *</label>
+                    <input type="text" id="endereco" name="endereco" required placeholder="Rua, Número, Complemento, Bairro" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                </div>
+
+                <div class="form-group">
+                    <label for="opcao_envio" class="block text-xs font-semibold text-slate-300 mb-1">Opção de Envio Preferencial:</label>
+                    <select id="opcao_envio" name="opcao_envio" class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none">
+                        <option value="PAC (Cotar valor com vendedor)">Correios - PAC (A calcular)</option>
+                        <option value="SEDEX (Cotar valor com vendedor)">Correios - SEDEX (A calcular)</option>
+                        <option value="Retirada em Mãos / A Combinar">Retirada em Mãos / A Combinar</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem" class="block text-xs font-semibold text-slate-300 mb-1">Observações / Instruções:</label>
+                    <textarea id="mensagem" name="mensagem" rows="3" placeholder="Detalhes adicionais..." class="w-full bg-darkBg border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-goldPrimary outline-none"></textarea>
+                </div>
+
+                <input type="hidden" name="assunto" value="Novo Pedido de Selos - Zanoni Filatelia">
+                <input type="hidden" id="carrinho_detalhes" name="carrinho_detalhes" value="">
+                <input type="hidden" name="_next" value="https://zanoniweb.github.io/numismaticaloja/thanks.html">
+                <input type="hidden" name="_subject" value="Novo Pedido de Selos Recebido!">
+
+                <!-- Botões de Envio de Pedido -->
+                <div class="pt-2 space-y-2">
+                    <button type="submit" class="w-full py-3 rounded-lg bg-goldPrimary hover:bg-goldLight text-black font-extrabold text-sm uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Finalizar Compra via E-mail
+                    </button>
+                    <button type="button" onclick="checkoutWhatsApp()" class="w-full py-3 rounded-lg bg-emeraldSuccess hover:bg-emeraldHover text-black font-extrabold text-sm uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Finalizar Compra via WhatsApp
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Carrinho: Resumo de Valores -->
+        <div class="p-4 sm:p-6 bg-slate-900 border-t border-slate-800 space-y-2">
+            <div class="flex justify-between text-xs text-slate-400">
+                <span>Subtotal dos Itens:</span>
+                <span id="cart-subtotal" class="font-bold text-white">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-400">
+                <span>Cálculo do Frete:</span>
+                <span id="cart-freight" class="font-bold text-goldPrimary">A calcular pelo vendedor</span>
+            </div>
+            <div class="flex justify-between text-base font-black text-white pt-2 border-t border-slate-800">
+                <span>Total Estimado:</span>
+                <span id="cart-total" class="text-emeraldSuccess">R$ 0,00</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Corporate Footer -->
+    <footer class="bg-darkCard border-t border-slate-800 mt-12 py-8 px-4 sm:px-6 lg:px-8 text-slate-400 text-sm no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center space-x-3">
+                <div>
+                    <p class="font-bold text-slate-200">Zanoni Filatelia</p>
+                    <p class="text-xs text-slate-500">Avaliação contemporânea de 12/11/2026</p>
+                </div>
+            </div>
+            <div class="text-center md:text-right text-xs text-slate-500">
+                <p>&copy; <span id="current-year"></span> Zanoni Filatelia. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Alert Box -->
+    <div id="modal-alert" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-goldPrimary/40 rounded-xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/30 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-circle-info text-xl"></i>
+            </div>
+            <h3 id="modal-title" class="text-lg font-bold text-white mb-2">Notificação</h3>
+            <p id="modal-message" class="text-sm text-slate-300 mb-6"></p>
+            <button onclick="closeModal()" class="w-full py-2.5 rounded-lg bg-goldPrimary text-black font-extrabold text-sm hover:bg-goldLight transition-colors">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidade Geral e Carrinho de Compras -->
+    <script>
+        // Catálogo Completo dos Selos do Lote (Avaliação 12/11/2026)
+        const fullCatalog = [
+            { id: "S1", categoria: "IMPERIO", nome: "Ref: 1843 (2 selos)", detalhe: "OLHOS BOI FALSOS DE ÉPOCA 30 E 60 RÉIS CIRCULADOS", conservacao: "BOM ESTADO", preco: "R$ 90,00", numericPreco: 90.0 },
+            { id: "S2", categoria: "IMPERIO", nome: "Ref: 1844 (7 selos)", detalhe: "SÉRIE COMPLETA INCLINADOS FALSOS DE ÉPOCA CIRCULADOS", conservacao: "BOM ESTADO", preco: "R$ 175,00", numericPreco: 175.0 },
+            { id: "S3", categoria: "IMPERIO", nome: "Ref: 1850 (1 selos)", detalhe: "OLHO DE CABRA 30 RÉIS MARGEM CURTA SEM GOMA", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S4", categoria: "IMPERIO", nome: "Ref: 1850 (1 selos)", detalhe: "OLHOS DE CABRA 60 RÉIS OBLIETAÇÃO A PENA", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S5", categoria: "IMPERIO", nome: "Ref: 1850 (1 selos)", detalhe: "OLHO DE CABRA 60 RÉIS COM DEIFEITO E CARIMBO MUDO", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S6", categoria: "IMPERIO", nome: "Ref: 1850 (1 selos)", detalhe: "OLHO DE CABRA 60 RÉIS COM CARIMBO DE IDENTIFCAÇÃO", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S7", categoria: "IMPERIO", nome: "Ref: 1850 (1 selos)", detalhe: "OLHO DE CABRA 60 RÉIS COM CARIMBO DE NÚMERO", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S8", categoria: "IMPERIO", nome: "Ref: 1866 (2 selos)", detalhe: "D. PEDRO DENTADO 10 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S9", categoria: "IMPERIO", nome: "Ref: 1866 (3 selos)", detalhe: "D. PEDRO DENTADO 20 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S10", categoria: "IMPERIO", nome: "Ref: 1866 (1 selos)", detalhe: "D. PEDRO DENTADO 50 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 30,00", numericPreco: 30.0 },
+            { id: "S11", categoria: "IMPERIO", nome: "Ref: 1866 (4 selos)", detalhe: "D. PEDRO DENTADO 80 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 112,00", numericPreco: 112.0 },
+            { id: "S12", categoria: "IMPERIO", nome: "Ref: 1866 (5 selos)", detalhe: "D. PEDRO DENTADO 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 100,00", numericPreco: 100.0 },
+            { id: "S13", categoria: "IMPERIO", nome: "Ref: 1866 (1 selos)", detalhe: "D. PEDRO DENTADO 200 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 45,00", numericPreco: 45.0 },
+            { id: "S14", categoria: "IMPERIO", nome: "Ref: 1866 (1 selos)", detalhe: "D. PEDRO DENTADO 500 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 85,00", numericPreco: 85.0 },
+            { id: "S15", categoria: "IMPERIO", nome: "Ref: 1876 (3 selos)", detalhe: "D. PEDRO PERCE 20 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 54,00", numericPreco: 54.0 },
+            { id: "S16", categoria: "IMPERIO", nome: "Ref: 1876 (3 selos)", detalhe: "D. PEDRO PERCE 50 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 60,00", numericPreco: 60.0 },
+            { id: "S17", categoria: "IMPERIO", nome: "Ref: 1876 (1 selos)", detalhe: "D. PEDRO PERCE 80 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S18", categoria: "IMPERIO", nome: "Ref: 1876 (2 selos)", detalhe: "D. PEDRO PERCE 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 44,00", numericPreco: 44.0 },
+            { id: "S19", categoria: "IMPERIO", nome: "Ref: 1876 (2 selos)", detalhe: "D. PEDRO PERCE 200 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S20", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (2 selos)", detalhe: "D. PEDRO BARBA BRANCA 10 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 40,00", numericPreco: 40.0 },
+            { id: "S21", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (5 selos)", detalhe: "D. PEDRO BARBA BRANCA 20 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S22", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (3 selos)", detalhe: "D. PEDRO BARBA BRANCA 50 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 54,00", numericPreco: 54.0 },
+            { id: "S23", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (2 selos)", detalhe: "D. PEDRO BARBA BRANCA 80 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 50,00", numericPreco: 50.0 },
+            { id: "S24", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (4 selos)", detalhe: "D. PEDRO BARBA BRANCA 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 72,00", numericPreco: 72.0 },
+            { id: "S25", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (1 selos)", detalhe: "D. PEDRO BARBA BRANCA 200 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 30,00", numericPreco: 30.0 },
+            { id: "S26", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (1 selos)", detalhe: "D. PEDRO BARBA BRANCA 260 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 45,00", numericPreco: 45.0 },
+            { id: "S27", categoria: "IMPERIO", nome: "Ref: 1877 à 1878 (1 selos)", detalhe: "D. PEDRO BARBA BRANCA 1000 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 120,00", numericPreco: 120.0 },
+            { id: "S28", categoria: "IMPERIO", nome: "Ref: 1878 (2 selos)", detalhe: "D. PEDRO AURIVERDE 300 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 120,00", numericPreco: 120.0 },
+            { id: "S29", categoria: "IMPERIO", nome: "Ref: 1882 à 1885 (1 selos)", detalhe: "D. PEDRO CABEÇA GRANDE 10 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S30", categoria: "IMPERIO", nome: "Ref: 1882 à 1885 (1 selos)", detalhe: "D. PEDRO CABEÇA GRANDE 50 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S31", categoria: "IMPERIO", nome: "Ref: 1882 à 1885 (1 selos)", detalhe: "D. PEDRO CABEÇA GRANDE 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 22,00", numericPreco: 22.0 },
+            { id: "S32", categoria: "IMPERIO", nome: "Ref: 1882 à 1885 (1 selos)", detalhe: "D. PEDRO CABEÇA GRANDE 200 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 40,00", numericPreco: 40.0 },
+            { id: "S33", categoria: "IMPERIO", nome: "Ref: 1883 (1 selos)", detalhe: "D. PEDRO FUNDO CRUZADO 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S34", categoria: "IMPERIO", nome: "Ref: 1884 (1 selos)", detalhe: "D. PEDRO CABECINHA 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 35,00", numericPreco: 35.0 },
+            { id: "S35", categoria: "IMPERIO", nome: "Ref: 1884/1888 (1 selos)", detalhe: "TIPOS CIFRAS 20 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 15,00", numericPreco: 15.0 },
+            { id: "S36", categoria: "IMPERIO", nome: "Ref: 1884/1888 (1 selos)", detalhe: "TIPOS CIFRAS 50 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 15,00", numericPreco: 15.0 },
+            { id: "S37", categoria: "IMPERIO", nome: "Ref: 1884/1888 (1 selos)", detalhe: "TIPOS CIFRAS 100 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 15,00", numericPreco: 15.0 },
+            { id: "S38", categoria: "IMPERIO", nome: "Ref: 1884/1888 (1 selos)", detalhe: "TIPOS CIFRAS 300 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S39", categoria: "IMPERIO", nome: "Ref: 1884/1888 (1 selos)", detalhe: "TIPOS CIFRAS 500 RÉIS CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 40,00", numericPreco: 40.0 },
+            { id: "S40", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 04 - 1880 (1 selos)", detalhe: "CIRCULADO COM TODOS OS CARIMBOS DE TRANSITO", conservacao: "BOM ESTADO", preco: "R$ 180,00", numericPreco: 180.0 },
+            { id: "S41", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 06 - 1880/1884 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO - COMPLETO", conservacao: "BOM ESTADO", preco: "R$ 150,00", numericPreco: 150.0 },
+            { id: "S42", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 07 - 1880/1884 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO - COMPLETO", conservacao: "BOM ESTADO", preco: "R$ 150,00", numericPreco: 150.0 },
+            { id: "S43", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 08 - 1880/1884 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO - COMPLETO", conservacao: "BOM ESTADO", preco: "R$ 160,00", numericPreco: 160.0 },
+            { id: "S44", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 08 P- 1880/1884 (1 selos)", detalhe: "BILHETE POSTAL CIRCULADO -APENAS A PERGUNTA", conservacao: "BOM ESTADO", preco: "R$ 190,00", numericPreco: 190.0 },
+            { id: "S45", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 10 - 1881/1882 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 130,00", numericPreco: 130.0 },
+            { id: "S46", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 10 - 1881/1882 (1 selos)", detalhe: "BILHETE POSTAL CIRCULADO PARA PARÍS COM TODOS OS CARIMBOS", conservacao: "BOM ESTADO", preco: "R$ 350,00", numericPreco: 350.0 },
+            { id: "S47", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 11 - 1883/1884 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 130,00", numericPreco: 130.0 },
+            { id: "S48", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 14 - 1889 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 120,00", numericPreco: 120.0 },
+            { id: "S49", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 14 - 1889 (1 selos)", detalhe: "BILHETE POSTAL CIRCULADO NO BRASIL COM CARIMBOS DE TRANSITO", conservacao: "BOM ESTADO", preco: "R$ 220,00", numericPreco: 220.0 },
+            { id: "S50", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 15 - 1889 (1 selos)", detalhe: "BILHETE POSTAL NOVO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 120,00", numericPreco: 120.0 },
+            { id: "S51", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 01 - 200 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 140,00", numericPreco: 140.0 },
+            { id: "S52", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 2 A - 100 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 140,00", numericPreco: 140.0 },
+            { id: "S53", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 08 - 200 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 130,00", numericPreco: 130.0 },
+            { id: "S54", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 08 - 200 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO CIRCULADO PARA ALEMANHA", conservacao: "BOM ESTADO", preco: "R$ 380,00", numericPreco: 380.0 },
+            { id: "S55", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 18- 80 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 150,00", numericPreco: 150.0 },
+            { id: "S56", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 21- 80 RÉIS (1 selos)", detalhe: "BRASIL IMPÉRIO NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 150,00", numericPreco: 150.0 },
+            { id: "S57", categoria: "IMPERIO", nome: "Ref: CINTA PARA JORNAL Nº 01 - 1889 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 110,00", numericPreco: 110.0 },
+            { id: "S58", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 47 - 1895 (1 selos)", detalhe: "CIRCULADO E COM O CARIMBO AVULSA RARO", conservacao: "BOM ESTADO", preco: "R$ 450,00", numericPreco: 450.0 },
+            { id: "S59", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 48 E - 1895 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 90,00", numericPreco: 90.0 },
+            { id: "S60", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 52 - 1895 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 90,00", numericPreco: 90.0 },
+            { id: "S61", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 60 P - 1898 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 90,00", numericPreco: 90.0 },
+            { id: "S62", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 61 - 1903 (1 selos)", detalhe: "CIRCULADO COM TODOS OS CARIMBOS DE TRANSITO", conservacao: "BOM ESTADO", preco: "R$ 160,00", numericPreco: 160.0 },
+            { id: "S63", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 67 - 1906 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 80,00", numericPreco: 80.0 },
+            { id: "S64", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 68 - 1906 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S65", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 69 - 1906 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 80,00", numericPreco: 80.0 },
+            { id: "S66", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 73 R- 1906 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 110,00", numericPreco: 110.0 },
+            { id: "S67", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 75 - 1908 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S68", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 76 - 1908 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 75,00", numericPreco: 75.0 },
+            { id: "S69", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 79 - 1918 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S70", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 81 - 1918 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S71", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 82 - 1931 (1 selos)", detalhe: "NÃO CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 65,00", numericPreco: 65.0 },
+            { id: "S72", categoria: "IMPERIO", nome: "Ref: BILHETE POSTAL Nº 82 - 1931 (1 selos)", detalhe: "CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S73", categoria: "IMPERIO", nome: "Ref: CARTA BILHETE Nº 12 (1 selos)", detalhe: "BRASIL REPÚBLICA CIRCULADO", conservacao: "BOM ESTADO", preco: "R$ 120,00", numericPreco: 120.0 },
+            { id: "S74", categoria: "COMEMORATIVOS", nome: "Ref: 1908 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 18,00", numericPreco: 18.0 },
+            { id: "S75", categoria: "COMEMORATIVOS", nome: "Ref: 1915 à 1917 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 18,00", numericPreco: 18.0 },
+            { id: "S76", categoria: "COMEMORATIVOS", nome: "Ref: 1920 (1 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 8,00", numericPreco: 8.0 },
+            { id: "S77", categoria: "COMEMORATIVOS", nome: "Ref: 1922 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 24,00", numericPreco: 24.0 },
+            { id: "S78", categoria: "COMEMORATIVOS", nome: "Ref: 1927 (2 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 14,00", numericPreco: 14.0 },
+            { id: "S79", categoria: "COMEMORATIVOS", nome: "Ref: 1928 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 21,00", numericPreco: 21.0 },
+            { id: "S80", categoria: "COMEMORATIVOS", nome: "Ref: 1930 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 21,00", numericPreco: 21.0 },
+            { id: "S81", categoria: "COMEMORATIVOS", nome: "Ref: 1931 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 60,00", numericPreco: 60.0 },
+            { id: "S82", categoria: "COMEMORATIVOS", nome: "Ref: 1932 (3 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 24,00", numericPreco: 24.0 },
+            { id: "S83", categoria: "COMEMORATIVOS", nome: "Ref: 1933 (1 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 10,00", numericPreco: 10.0 },
+            { id: "S84", categoria: "COMEMORATIVOS", nome: "Ref: 1934 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 60,00", numericPreco: 60.0 },
+            { id: "S85", categoria: "COMEMORATIVOS", nome: "Ref: 1935 (2 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 16,00", numericPreco: 16.0 },
+            { id: "S86", categoria: "COMEMORATIVOS", nome: "Ref: 1936 (8 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 48,00", numericPreco: 48.0 },
+            { id: "S87", categoria: "COMEMORATIVOS", nome: "Ref: 1937 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 60,00", numericPreco: 60.0 },
+            { id: "S88", categoria: "COMEMORATIVOS", nome: "Ref: 1938 (6 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 36,00", numericPreco: 36.0 },
+            { id: "S89", categoria: "COMEMORATIVOS", nome: "Ref: 1939 (16 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 80,00", numericPreco: 80.0 },
+            { id: "S90", categoria: "COMEMORATIVOS", nome: "Ref: 1940 (11 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 55,00", numericPreco: 55.0 },
+            { id: "S91", categoria: "COMEMORATIVOS", nome: "Ref: 1941 (5 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S92", categoria: "COMEMORATIVOS", nome: "Ref: 1942 (5 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 25,00", numericPreco: 25.0 },
+            { id: "S93", categoria: "COMEMORATIVOS", nome: "Ref: 1943 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 50,00", numericPreco: 50.0 },
+            { id: "S94", categoria: "COMEMORATIVOS", nome: "Ref: 1944 (6 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 30,00", numericPreco: 30.0 },
+            { id: "S95", categoria: "COMEMORATIVOS", nome: "Ref: 1945 (14 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 63,00", numericPreco: 63.0 },
+            { id: "S96", categoria: "COMEMORATIVOS", nome: "Ref: 1946 (8 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 36,00", numericPreco: 36.0 },
+            { id: "S97", categoria: "COMEMORATIVOS", nome: "Ref: 1947 (11 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 49,50", numericPreco: 49.5 },
+            { id: "S98", categoria: "COMEMORATIVOS", nome: "Ref: 1948 (9 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 40,50", numericPreco: 40.5 },
+            { id: "S99", categoria: "COMEMORATIVOS", nome: "Ref: 1949 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 45,00", numericPreco: 45.0 },
+            { id: "S100", categoria: "COMEMORATIVOS", nome: "Ref: 1950 (14 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 56,00", numericPreco: 56.0 },
+            { id: "S101", categoria: "COMEMORATIVOS", nome: "Ref: 1951 (8 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 32,00", numericPreco: 32.0 },
+            { id: "S102", categoria: "COMEMORATIVOS", nome: "Ref: 1952 (14 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 56,00", numericPreco: 56.0 },
+            { id: "S103", categoria: "COMEMORATIVOS", nome: "Ref: 1953 (34 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 119,00", numericPreco: 119.0 },
+            { id: "S104", categoria: "COMEMORATIVOS", nome: "Ref: 1954 (27 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 94,50", numericPreco: 94.5 },
+            { id: "S105", categoria: "COMEMORATIVOS", nome: "Ref: 1955 (15 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 52,50", numericPreco: 52.5 },
+            { id: "S106", categoria: "COMEMORATIVOS", nome: "Ref: 1956 (17 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 59,50", numericPreco: 59.5 },
+            { id: "S107", categoria: "COMEMORATIVOS", nome: "Ref: 1957 (17 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 59,50", numericPreco: 59.5 },
+            { id: "S108", categoria: "COMEMORATIVOS", nome: "Ref: 1958 (28 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 84,00", numericPreco: 84.0 },
+            { id: "S109", categoria: "COMEMORATIVOS", nome: "Ref: 1959 (19 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 57,00", numericPreco: 57.0 },
+            { id: "S110", categoria: "COMEMORATIVOS", nome: "Ref: 1960 (23 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 69,00", numericPreco: 69.0 },
+            { id: "S111", categoria: "COMEMORATIVOS", nome: "Ref: 1961 (18 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 54,00", numericPreco: 54.0 },
+            { id: "S112", categoria: "COMEMORATIVOS", nome: "Ref: 1962 (9 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 27,00", numericPreco: 27.0 },
+            { id: "S113", categoria: "COMEMORATIVOS", nome: "Ref: 1963 (28 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 70,00", numericPreco: 70.0 },
+            { id: "S114", categoria: "COMEMORATIVOS", nome: "Ref: 1964 (12 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 30,00", numericPreco: 30.0 },
+            { id: "S115", categoria: "COMEMORATIVOS", nome: "Ref: 1965 (18 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 45,00", numericPreco: 45.0 },
+            { id: "S116", categoria: "COMEMORATIVOS", nome: "Ref: 1966 (20 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 50,00", numericPreco: 50.0 },
+            { id: "S117", categoria: "COMEMORATIVOS", nome: "Ref: 1967 (25 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 62,50", numericPreco: 62.5 },
+            { id: "S118", categoria: "COMEMORATIVOS", nome: "Ref: 1968 (30 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 60,00", numericPreco: 60.0 },
+            { id: "S119", categoria: "COMEMORATIVOS", nome: "Ref: 1969 (10 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S120", categoria: "COMEMORATIVOS", nome: "Ref: 1970 (8 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 16,00", numericPreco: 16.0 },
+            { id: "S121", categoria: "COMEMORATIVOS", nome: "Ref: 1971 (7 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 14,00", numericPreco: 14.0 },
+            { id: "S122", categoria: "COMEMORATIVOS", nome: "Ref: 1972 (7 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 14,00", numericPreco: 14.0 },
+            { id: "S123", categoria: "COMEMORATIVOS", nome: "Ref: 1973 (12 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 24,00", numericPreco: 24.0 },
+            { id: "S124", categoria: "COMEMORATIVOS", nome: "Ref: 1974 (9 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 18,00", numericPreco: 18.0 },
+            { id: "S125", categoria: "COMEMORATIVOS", nome: "Ref: 1975 (22 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 39,60", numericPreco: 39.6 },
+            { id: "S126", categoria: "COMEMORATIVOS", nome: "Ref: 1976 (42 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 75,60", numericPreco: 75.6 },
+            { id: "S127", categoria: "COMEMORATIVOS", nome: "Ref: 1977 (50 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 90,00", numericPreco: 90.0 },
+            { id: "S128", categoria: "COMEMORATIVOS", nome: "Ref: 1978 (40 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 72,00", numericPreco: 72.0 },
+            { id: "S129", categoria: "COMEMORATIVOS", nome: "Ref: 1979 (46 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 82,80", numericPreco: 82.8 },
+            { id: "S130", categoria: "COMEMORATIVOS", nome: "Ref: 1980 (33 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 49,50", numericPreco: 49.5 },
+            { id: "S131", categoria: "COMEMORATIVOS", nome: "Ref: 1981 (22 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 33,00", numericPreco: 33.0 },
+            { id: "S132", categoria: "COMEMORATIVOS", nome: "Ref: 1982 (23 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 34,50", numericPreco: 34.5 },
+            { id: "S133", categoria: "COMEMORATIVOS", nome: "Ref: 1983 (28 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 42,00", numericPreco: 42.0 },
+            { id: "S134", categoria: "COMEMORATIVOS", nome: "Ref: 1984 (43 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 64,50", numericPreco: 64.5 },
+            { id: "S135", categoria: "COMEMORATIVOS", nome: "Ref: 1985 (59 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 70,80", numericPreco: 70.8 },
+            { id: "S136", categoria: "COMEMORATIVOS", nome: "Ref: 1986 (28 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 33,60", numericPreco: 33.6 },
+            { id: "S137", categoria: "COMEMORATIVOS", nome: "Ref: 1987 (32 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 38,40", numericPreco: 38.4 },
+            { id: "S138", categoria: "COMEMORATIVOS", nome: "Ref: 1988 (27 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 32,40", numericPreco: 32.4 },
+            { id: "S139", categoria: "COMEMORATIVOS", nome: "Ref: 1989 (35 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 42,00", numericPreco: 42.0 },
+            { id: "S140", categoria: "COMEMORATIVOS", nome: "Ref: 1990 (34 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 34,00", numericPreco: 34.0 },
+            { id: "S141", categoria: "COMEMORATIVOS", nome: "Ref: 1991 (32 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 32,00", numericPreco: 32.0 },
+            { id: "S142", categoria: "COMEMORATIVOS", nome: "Ref: 1992 (45 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 45,00", numericPreco: 45.0 },
+            { id: "S143", categoria: "COMEMORATIVOS", nome: "Ref: 1993 (38 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 38,00", numericPreco: 38.0 },
+            { id: "S144", categoria: "COMEMORATIVOS", nome: "Ref: 1994 (46 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 46,00", numericPreco: 46.0 },
+            { id: "S145", categoria: "COMEMORATIVOS", nome: "Ref: 1995 (39 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 39,00", numericPreco: 39.0 },
+            { id: "S146", categoria: "COMEMORATIVOS", nome: "Ref: 1996 (20 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 20,00", numericPreco: 20.0 },
+            { id: "S147", categoria: "COMEMORATIVOS", nome: "Ref: 1997 (36 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 36,00", numericPreco: 36.0 },
+            { id: "S148", categoria: "COMEMORATIVOS", nome: "Ref: 1998 (87 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 69,60", numericPreco: 69.6 },
+            { id: "S149", categoria: "COMEMORATIVOS", nome: "Ref: 1999 (45 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 36,00", numericPreco: 36.0 },
+            { id: "S150", categoria: "COMEMORATIVOS", nome: "Ref: 2000 (53 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 42,40", numericPreco: 42.4 },
+            { id: "S151", categoria: "COMEMORATIVOS", nome: "Ref: 2001 (36 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 28,80", numericPreco: 28.8 },
+            { id: "S152", categoria: "COMEMORATIVOS", nome: "Ref: 2002 (38 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 30,40", numericPreco: 30.4 },
+            { id: "S153", categoria: "COMEMORATIVOS", nome: "Ref: 2003 (43 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 34,40", numericPreco: 34.4 },
+            { id: "S154", categoria: "COMEMORATIVOS", nome: "Ref: 2004 (38 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 30,40", numericPreco: 30.4 },
+            { id: "S155", categoria: "COMEMORATIVOS", nome: "Ref: 2005 (8 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 6,40", numericPreco: 6.4 },
+            { id: "S156", categoria: "COMEMORATIVOS", nome: "Ref: 2006 (16 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 12,80", numericPreco: 12.8 },
+            { id: "S157", categoria: "COMEMORATIVOS", nome: "Ref: 2007 (37 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 29,60", numericPreco: 29.6 },
+            { id: "S158", categoria: "COMEMORATIVOS", nome: "Ref: 2008 (69 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 55,20", numericPreco: 55.2 },
+            { id: "S159", categoria: "COMEMORATIVOS", nome: "Ref: 2009 (71 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 56,80", numericPreco: 56.8 },
+            { id: "S160", categoria: "COMEMORATIVOS", nome: "Ref: 2010 (34 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 27,20", numericPreco: 27.2 },
+            { id: "S161", categoria: "COMEMORATIVOS", nome: "Ref: 2011 (106 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 84,80", numericPreco: 84.8 },
+            { id: "S162", categoria: "COMEMORATIVOS", nome: "Ref: 2013 (6 selos)", detalhe: "LOTE COMPOSTO POR SELOS COMEMORATIVOS CIRCULADOS DIFERENTES DO BRASIL", conservacao: "BOM ESTADO", preco: "R$ 4,80", numericPreco: 4.8 },
+            { id: "S163", categoria: "LOTES_ESPECIAIS", nome: "Ref: 1891-2008 (484 selos)", detalhe: "Ordinários do cabecinha até instrumentos musicais", conservacao: "BOM ESTADO", preco: "R$ 193,60", numericPreco: 193.6 },
+            { id: "S164", categoria: "LOTES_ESPECIAIS", nome: "Ref: FALHAS DE IMPRESSÃO ESTRANGEIROS (15 selos)", detalhe: "Diversos países", conservacao: "BOM ESTADO", preco: "R$ 4,50", numericPreco: 4.5 },
+            { id: "S165", categoria: "LOTES_ESPECIAIS", nome: "Ref: FALHAS DE IMPRESSÃO BRASILEIROS (19 selos)", detalhe: "Regulares", conservacao: "BOM ESTADO", preco: "R$ 5,70", numericPreco: 5.7 },
+            { id: "S166", categoria: "LOTES_ESPECIAIS", nome: "Ref: SELOS DIVERSOS (17 selos)", detalhe: "Diversos do Brasil", conservacao: "BOM ESTADO", preco: "R$ 13,60", numericPreco: 13.6 },
+            { id: "S167", categoria: "LOTES_ESPECIAIS", nome: "Ref: ESTAMPILHAS (44 selos)", detalhe: "Estampilhas brasileiras", conservacao: "BOM ESTADO", preco: "R$ 66,00", numericPreco: 66.0 },
+            { id: "S168", categoria: "LOTES_ESPECIAIS", nome: "Ref: PERSONALIZADO 40 ANOS (12 selos)", detalhe: "Clube Filatélico de Londrina (folha completa)", conservacao: "BOM ESTADO", preco: "R$ 42,00", numericPreco: 42.0 },
+            { id: "S169", categoria: "LOTES_ESPECIAIS", nome: "Ref: PERSONALIZADO 50 ANOS (12 selos)", detalhe: "Clube Filatélico de Londrina (folha completa)", "conservacao": "BOM ESTADO", preco: "R$ 48,00", numericPreco: 48.0 },
+            { id: "S170", categoria: "LOTES_ESPECIAIS", nome: "Ref: CURIOSIDADES (35 selos)", detalhe: "Curiosidades filatélicas", conservacao: "BOM ESTADO", preco: "R$ 87,50", numericPreco: 87.5 }
+        ];
+
+        let cart = [];
+        let filteredCatalog = [...fullCatalog];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+
+            // Card / Table View Swapper
+            const cardBtn = document.getElementById('view-card-btn');
+            const tableBtn = document.getElementById('view-table-btn');
+            const cardsContainer = document.getElementById('cards-container');
+            const tableWrapper = document.getElementById('table-wrapper');
+
+            cardBtn.addEventListener('click', () => {
+                cardsContainer.classList.remove('hidden');
+                tableWrapper.classList.add('hidden');
+                cardBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5";
+                tableBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5";
+            });
+
+            tableBtn.addEventListener('click', () => {
+                cardsContainer.classList.add('hidden');
+                tableWrapper.classList.remove('hidden');
+                tableBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-slate-800 transition-all flex items-center gap-1.5";
+                cardBtn.className = "px-3 py-1.5 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-1.5";
+            });
+
+            // Filtros
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
+            const categoryFilter = document.getElementById('category-filter');
+
+            function applyFilters() {
+                const query = searchInput.value.toLowerCase().trim();
+                const selectedCat = categoryFilter.value;
+
+                filteredCatalog = fullCatalog.filter(item => {
+                    const matchesSearch = item.nome.toLowerCase().includes(query) ||
+                                          item.detalhe.toLowerCase().includes(query) ||
+                                          item.conservacao.toLowerCase().includes(query) ||
+                                          item.preco.toLowerCase().includes(query);
+
+                    const matchesCategory = (selectedCat === 'ALL') || (item.categoria === selectedCat);
+                    return matchesSearch && matchesCategory;
+                });
+
+                renderCatalog();
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                clearSearchBtn.classList.toggle('hidden', e.target.value.length === 0);
+                applyFilters();
+            });
+
+            categoryFilter.addEventListener('change', applyFilters);
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                applyFilters();
+            });
+
+            // Envio do Formulário do Carrinho
+            document.getElementById('checkout-form').addEventListener('submit', function(e) {
+                if (cart.length === 0) {
+                    e.preventDefault();
+                    showModal("Carrinho Vazio", "Adicione pelo menos um lote ao carrinho antes de enviar seu pedido.");
+                    return;
+                }
+                
+                const detalhes = cart.map(i => `${i.qty}x ${i.nome} - ${i.detalhe} (${i.preco})`).join('\n');
+                const subtotal = document.getElementById('cart-subtotal').textContent;
+                const envio = document.getElementById('opcao_envio').value;
+                
+                document.getElementById('carrinho_detalhes').value = `--- ITENS DO PEDIDO ---\n${detalhes}\n\nSubtotal: ${subtotal}\nEnvio: ${envio}`;
+            });
+
+            renderCatalog();
+        });
+
+        function switchCategory(cat) {
+            document.getElementById('category-filter').value = cat;
+            document.getElementById('category-filter').dispatchEvent(new Event('change'));
+        }
+
+        // Renderização do Catálogo
+        function renderCatalog() {
+            const cardsContainer = document.getElementById('cards-container');
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+
+            const totalItems = fullCatalog.length;
+            const visibleItems = filteredCatalog.length;
+            const totalVal = filteredCatalog.reduce((acc, curr) => acc + curr.numericPreco, 0);
+            const avgVal = visibleItems > 0 ? (totalVal / visibleItems) : 0;
+
+            document.getElementById('stat-total-items').textContent = totalItems;
+            document.getElementById('stat-visible-items').textContent = visibleItems;
+            document.getElementById('stat-avg-price').textContent = `R$ ${avgVal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('stat-total-value').textContent = `R$ ${totalVal.toFixed(2).replace('.', ',')}`;
+
+            if (visibleItems === 0) {
+                cardsContainer.innerHTML = '';
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Cards Render
+            cardsContainer.innerHTML = filteredCatalog.map(item => `
+                <div class="bg-darkCard hover:bg-darkCardHover rounded-xl p-4 border border-slate-800 hover:border-goldPrimary/40 transition-all duration-300 flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-goldPrimary/10 text-goldPrimary border border-goldPrimary/20">
+                                ${item.categoria}
+                            </span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-emeraldSuccess border border-slate-700">
+                                ${item.conservacao}
+                            </span>
+                        </div>
+                        <h4 class="text-base font-bold text-white mb-1">${item.nome}</h4>
+                        <p class="text-xs text-slate-400 mb-4">${item.detalhe}</p>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Preço Venda</span>
+                            <span class="text-base font-black text-white">${item.preco}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-1">
+                            <input type="number" id="qty-card-${item.id}" value="1" min="1" max="99" class="w-12 py-1 text-center bg-darkBg border border-slate-700 rounded text-xs text-white focus:outline-none focus:border-goldPrimary">
+                            <button onclick="addToCart('${item.id}', 'qty-card-${item.id}')" class="p-2 rounded bg-goldPrimary/10 hover:bg-goldPrimary hover:text-black text-goldPrimary border border-goldPrimary/30 transition-all text-xs font-bold" title="Adicionar ao Carrinho">
+                                <i class="fa-solid fa-cart-plus text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Table Render
+            tableBody.innerHTML = filteredCatalog.map(item => `
+                <tr class="hover:bg-slate-800/40 transition-colors">
+                    <td class="px-4 py-3.5 font-bold text-white whitespace-nowrap">${item.nome}</td>
+                    <td class="px-4 py-3.5 text-xs text-slate-300">${item.detalhe} <span class="text-[10px] text-slate-500">(${item.categoria})</span></td>
+                    <td class="px-4 py-3.5 text-center">
+                        <span class="inline-block text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-emeraldSuccess border border-slate-700">
+                            ${item.conservacao}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-right font-black text-goldPrimary whitespace-nowrap">${item.preco}</td>
+                    <td class="px-4 py-3.5 text-center no-print whitespace-nowrap">
+                        <div class="inline-flex items-center justify-center gap-1">
+                            <input type="number" id="qty-tbl-${item.id}" value="1" min="1" max="99" class="w-12 py-1 text-center bg-darkBg border border-slate-700 rounded text-xs text-white focus:outline-none focus:border-goldPrimary">
+                            <button onclick="addToCart('${item.id}', 'qty-tbl-${item.id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-goldPrimary hover:text-black text-xs font-bold text-slate-200 transition-colors gap-1 flex items-center">
+                                <i class="fa-solid fa-cart-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Adicionar ao Carrinho
+        function addToCart(itemId, inputId) {
+            const item = fullCatalog.find(i => i.id === itemId);
+            const qtyInput = document.getElementById(inputId);
+            const quantity = parseInt(qtyInput.value) || 1;
+
+            if (!item) return;
+
+            const existingIndex = cart.findIndex(c => c.id === itemId);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += quantity;
+            } else {
+                cart.push({ ...item, qty: quantity });
+            }
+
+            updateCartUI();
+            showModal("Item Adicionado", `${quantity}x "${item.nome} - ${item.detalhe}" foi adicionado ao seu carrinho.`);
+        }
+
+        // Atualização da Drawer do Carrinho
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cart-items-container');
+            const cartBadge = document.getElementById('cart-badge-count');
+
+            const totalQty = cart.reduce((acc, curr) => acc + curr.qty, 0);
+            cartBadge.textContent = totalQty;
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-2"></i>
+                        <p class="text-xs">Seu carrinho está vazio.</p>
+                    </div>
+                `;
+            } else {
+                cartContainer.innerHTML = cart.map((item, index) => `
+                    <div class="bg-darkBg p-3 rounded-lg border border-slate-800 flex items-center justify-between gap-3">
+                        <div class="flex-1">
+                            <h5 class="text-xs font-bold text-white">${item.nome}</h5>
+                            <p class="text-[10px] text-slate-400">${item.detalhe} - ${item.preco}</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center border border-slate-700 rounded bg-slate-900">
+                                <button onclick="changeCartQty(${index}, -1)" class="px-2 py-0.5 text-xs text-slate-400 hover:text-white">-</button>
+                                <span class="px-2 text-xs font-bold text-goldPrimary">${item.qty}</span>
+                                <button onclick="changeCartQty(${index}, 1)" class="px-2 py-0.5 text-xs text-slate-400 hover:text-white">+</button>
+                            </div>
+                            <button onclick="removeFromCart(${index})" class="text-slate-500 hover:text-crimsonAccent p-1">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            calculateCartTotals();
+        }
+
+        function changeCartQty(index, change) {
+            if (cart[index]) {
+                cart[index].qty += change;
+                if (cart[index].qty <= 0) {
+                    cart.splice(index, 1);
+                }
+                updateCartUI();
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function calculateCartTotals() {
+            const subtotal = cart.reduce((acc, curr) => acc + (curr.numericPreco * curr.qty), 0);
+            document.getElementById('cart-subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-total').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+            
+            drawer.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Finalização WhatsApp
+        function checkoutWhatsApp() {
+            const numeroTelefone = "5543988635712"; 
+
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            const cep = document.getElementById('cep').value.trim();
+            const cidadeUf = document.getElementById('cidade_uf').value.trim();
+            const endereco = document.getElementById('endereco').value.trim();
+            const opcaoEnvio = document.getElementById('opcao_envio').value;
+            const observacao = document.getElementById('mensagem').value.trim();
+
+            if (!nome || !email || !telefone || !cep || !cidadeUf || !endereco) {
+                showModal("Dados Incompletos", "Por favor, preencha todos os dados do comprador antes de enviar por WhatsApp.");
+                return;
+            }
+
+            if (cart.length === 0) {
+                showModal("Carrinho Vazio", "Adicione pelo menos um item ao carrinho.");
+                return;
+            }
+
+            const subtotalNum = cart.reduce((acc, curr) => acc + (curr.numericPreco * curr.qty), 0);
+            const totalItens = cart.reduce((acc, curr) => acc + curr.qty, 0);
+            const subtotalFormatted = `R$ ${subtotalNum.toFixed(2).replace('.', ',')}`;
+
+            let itensLista = "";
+            cart.forEach(item => {
+                const itemTotal = (item.numericPreco * item.qty).toFixed(2).replace('.', ',');
+                itensLista += `• *${item.qty}x* ${item.nome} - ${item.detalhe} = *R$ ${itemTotal}*\n`;
+            });
+
+            let mensagem = `*NOVO PEDIDO DE SELOS - ZANONI FILATELIA*\n\n`;
+            mensagem += `*DADOS DO COMPRADOR:*\n`;
+            mensagem += `👤 *Nome:* ${nome}\n`;
+            mensagem += `📧 *E-mail:* ${email}\n`;
+            mensagem += `📞 *Telefone:* ${telefone}\n`;
+            mensagem += `📮 *CEP:* ${cep} | *Cidade/UF:* ${cidadeUf}\n`;
+            mensagem += `🏠 *Endereço:* ${endereco}\n`;
+            mensagem += `🚚 *Envio:* ${opcaoEnvio}\n`;
+            if (observacao) mensagem += `📝 *Obs:* ${observacao}\n`;
+
+            mensagem += `\n--------------------------------\n\n`;
+            mensagem += `*ITENS DO PEDIDO:*\n${itensLista}`;
+            mensagem += `\n--------------------------------\n`;
+            mensagem += `📦 *Total de Lotes:* ${totalItens}\n`;
+            mensagem += `💰 *Valor Total:* ${subtotalFormatted}\n\n`;
+            mensagem += `_Aguardando cotação de frete com o vendedor!_`;
+
+            const mensagemFormatada = encodeURIComponent(mensagem);
+            window.open(`https://wa.me/${numeroTelefone}?text=${mensagemFormatada}`, '_blank');
+        }
+
+        // Exportar em PDF usando jsPDF
+        function exportarPDF() {
+            if (filteredCatalog.length === 0) {
+                showModal("Exportação de PDF", "Não existem itens visíveis para exportar.");
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                doc.setFillColor(11, 13, 16);
+                doc.rect(0, 0, 210, 32, 'F');
+
+                doc.setTextColor(212, 175, 55);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(16);
+                doc.text("ZANONI FILATELIA", 14, 15);
+
+                doc.setTextColor(226, 232, 240);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text("Catálogo Oficial de Selos — Avaliação de 12/11/2026", 14, 22);
+
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Gerado em: ${formattedDate}`, 14, 27);
+                doc.text(`Registros: ${filteredCatalog.length}`, 160, 27);
+
+                const tableHead = [["Ref. / Ano", "Descrição / Observações", "Conservação", "Preço Venda"]];
+                const tableData = filteredCatalog.map(item => [
+                    item.nome,
+                    item.detalhe,
+                    item.conservacao,
+                    item.preco
+                ]);
+
+                doc.autoTable({
+                    head: tableHead,
+                    body: tableData,
+                    startY: 38,
+                    theme: 'grid',
+                    styles: { font: "helvetica", fontSize: 9, cellPadding: 3 },
+                    headStyles: { fillColor: [20, 24, 32], textColor: [212, 175, 55], fontStyle: 'bold' },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', width: 40 },
+                        1: { width: 85 },
+                        2: { halign: 'center', width: 30 },
+                        3: { halign: 'right', fontStyle: 'bold', width: 35 }
+                    }
+                });
+
+                doc.save(`Catalogo_Zanoni_Filatelia_${now.toISOString().slice(0, 10)}.pdf`);
+            } catch (err) {
+                console.error(err);
+                showModal("Erro ao Gerar PDF", "Ocorreu uma falha ao gerar o arquivo PDF.");
+            }
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-alert').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-alert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
